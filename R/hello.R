@@ -1,4 +1,72 @@
 
+.kalshi_env <- new.env(parent = emptyenv())
+
+#' Set up Kalshi Authentication
+#'
+#' @description
+#' Configures the session by pointing the package to your private RSA key.
+#' This path is stored in an internal environment and used automatically
+#' for all subsequent API requests.
+#'
+#' @param path Character. The absolute or relative path to your `.key` or `.pem` file.
+#'
+#' @return Invisibly returns the path.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' kalshi_auth_setup("path/to/your/kalshi-key-2.key")
+#' }
+kalshi_auth_setup <- function(path="kalshi-key-2.key") {
+
+    if (!file.exists(path)) {
+        cli::cli_abort("The private key file was not found at: {.file {path}}")
+    }
+    # Store the path in our hidden environment
+    .kalshi_env$key_path <- normalizePath(path)
+
+    cli::cli_alert_success("Kalshi key path set successfully.")
+
+    return(invisible(.kalshi_env$key_path))
+}
+
+#' Validate Kalshi Authentication Setup
+#'
+#' @description
+#' Internal check to ensure the user has run `kalshi_auth_setup()`
+#' before attempting an authenticated API call.
+#'
+#' @return Returns the key path if found; otherwise, throws a cli_abort error.
+#' @keywords internal
+check_kalshi_auth <- function() {
+
+    # 1. Check if the variable exists in our hidden environment
+    path <- .kalshi_env$key_path
+
+    # 2. If it's NULL or the file was moved/deleted since setup
+    if (is.null(path)) {
+        cli::cli_abort(
+            c(
+                "Kalshi authentication has not been initialized.",
+                "i" = "You must provide the path to your private RSA key.",
+                "x" = "Please run: {.fn kalshi_auth_setup}."
+            )
+        )
+    }
+
+    if (!file.exists(path)) {
+        cli::cli_abort(
+            c(
+                "The registered Kalshi key path no longer exists: {.file {path}}",
+                "i" = "Please run {.fn kalshi_auth_setup} again with a valid path."
+            )
+        )
+    }
+
+    return(path)
+}
+
+
 
 #' Generate an RSA Key Pair for Kalshi API Authentication
 #'
@@ -94,9 +162,15 @@ generate_kalshi_keypair <- function(private_key_path = "kalshi-key-2.key") {
 #'
 #' @keywords internal
 #' @noRd
-sign_kalshi_system <- function(private_key_path, timestamp, method, path) {
+sign_kalshi_system <- function(private_key_path="kalshi-key-2.key", timestamp, method, path) {
     # 1. Construct the exact message string
     msg <- paste0(timestamp, method, path)
+
+
+
+    kalshi_auth_setup(path = private_key_path)
+
+    check_kalshi_auth()
 
     # 2. Create temporary files to handle binary data safely
     # We use temp files to avoid shell escaping issues with special characters
@@ -119,7 +193,7 @@ sign_kalshi_system <- function(private_key_path, timestamp, method, path) {
         "-sha256",
         "-sigopt", "rsa_padding_mode:pss",
         "-sigopt", "rsa_pss_saltlen:digest",
-        "-sign", private_key_path,
+        "-sign", .kalshi_env$key_path,
         "-out", sig_file,
         msg_file
     )
@@ -134,7 +208,8 @@ sign_kalshi_system <- function(private_key_path, timestamp, method, path) {
 
     # 6. Read the binary signature and Base64 encode it
     sig_raw <- readBin(sig_file, what = "raw", n = 1000) # Read enough bytes (RSA 2048 sig is 256 bytes)
-    sig_b64 <- base64_encode(sig_raw)
+    sig_b64 <- openssl::base64_encode(sig_raw)
+
 
     # Cleanup
     unlink(c(msg_file, sig_file))
@@ -154,8 +229,6 @@ sign_kalshi_system <- function(private_key_path, timestamp, method, path) {
 #' @param req An `httr2` request object.
 #' @param kalshi_access_token Character. The Kalshi Key ID (UUID) provided in the Kalshi
 #'   web dashboard.
-#' @param private_key_path Character. The file path to the RSA private key
-#'   (usually a .key or .pem file) used to sign the request.
 #'
 #' @details
 #' The function automatically handles the Kalshi requirement that the signature
@@ -167,10 +240,9 @@ sign_kalshi_system <- function(private_key_path, timestamp, method, path) {
 #'
 #' @return A modified `httr2` request object with `KALSHI-ACCESS-*` headers added.
 #' @export
-req_kalshi_authreq_kalshi_auth <- function(req, kalshi_access_token, private_key_path) {
+req_kalshi_auth <- function(req, kalshi_access_token) {
 
-
-
+    check_kalshi_auth()
 
     # 1. Generate Timestamp (Milliseconds as string)
     timestamp_ms <- base::as.character(base::round(base::as.numeric(base::Sys.time()) * 1000))
@@ -189,22 +261,26 @@ req_kalshi_authreq_kalshi_auth <- function(req, kalshi_access_token, private_key
 
     method <- req$method %||% "GET"
 
+
+
     # 3. Generate the Signature
     # Calls the internal sign_kalshi_system helper
     signature <- sign_kalshi_system(
-        private_key_path = private_key_path,
+        private_key_path = .kalshi_env$key_path,
         timestamp        = timestamp_ms,
         method           = method,
         path             = path_to_sign
     )
 
     # 4. Attach Headers
-    req %>%
+   out <-  req |>
         httr2::req_headers(
-            `KALSHI-ACCESS-KEY`       = kalshi_access_token,
+            `KALSHI-ACCESS-KEY`       = get_kalshi_access_token(kalshi_access_token = kalshi_access_token),
             `KALSHI-ACCESS-SIGNATURE` = base::as.character(signature),
             `KALSHI-ACCESS-TIMESTAMP` = timestamp_ms
         )
+
+   return(out)
 }
 
 
@@ -235,8 +311,15 @@ check_openssl_installed <- function() {
 
 
     if (Sys.which("openssl") == "") {
-
         cli::cli_abort("The 'openssl' command-line tool is required for Kalshi authentication but was not found.")
+
+        return(FALSE)
+
+    }else{
+
+        cli::cli_alert_success("{.pkg openssl} command-line tool is found ")
+
+        return(TRUE)
 
     }
 }
@@ -280,12 +363,10 @@ check_openssl_installed <- function() {
 
 
 
-    if(!is.charater(kalshi_access_token)){
+    if(!is.character(kalshi_access_token)){
 
         cli::cli_abort("Kalshi access token must be a character not {.cls {base::class(kalshi_access_token)}}")
     }
-
-    usethis::edit_r_environ()
 
     out <- Sys.getenv(kalshi_access_token)
 
@@ -351,7 +432,7 @@ check_openssl_installed <- function() {
 get_all_events <- function(kalshi_access_token="KALSHI_API"){
 
      #test
-     kalshi_token="KALSHI_API"
+    kalshi_access_token="KALSHI_API"
 
      # assign variables
      base_url <- "https://demo-api.kalshi.co"
@@ -375,10 +456,10 @@ get_all_events <- function(kalshi_access_token="KALSHI_API"){
          }
 
          # Authenticate and Perform
-         resp <- req |>
+         resp <-
+             req |>
              req_kalshi_auth(
-                 key_id = get_kalshi_access_token(kalshi_access_token),
-                 private_key_path = .kalshi_env$key_path # Assuming path is in your internal env
+                 kalshi_access_token =kalshi_access_token
              ) |>
              httr2::req_perform() |>
              httr2::resp_body_json()

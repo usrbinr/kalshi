@@ -1,0 +1,54 @@
+---
+title: "get_series"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_series()`
+
+Get Single Series
+
+## Usage
+
+```r
+get_series(
+  series_ticker,
+  include_volume = FALSE,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `series_ticker` | Character. The series ticker (e.g., "KXHIGHNY"). |
+| `include_volume` | Logical. Include volume data if TRUE. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with complete series details.
+
+## Description
+
+Retrieves detailed information for a specific series by ticker.
+
+## Examples
+
+```r
+## Not run: 
+series <- get_series("KXHIGHNY")
+series$title
+series$frequency
+
+## End(Not run)
+```
+
+## See also
+
+Other series: 
+`get_series_list()`
+

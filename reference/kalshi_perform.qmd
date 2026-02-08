@@ -1,0 +1,30 @@
+---
+title: "kalshi_perform"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `kalshi_perform()`
+
+Perform a Kalshi API Request
+
+## Usage
+
+```r
+kalshi_perform(req)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `req` | An httr2 request object. |
+
+## Value
+
+Parsed JSON response as a list.
+
+## Description
+
+Internal helper to execute a request and parse the JSON response.
+

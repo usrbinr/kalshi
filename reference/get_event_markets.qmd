@@ -1,0 +1,51 @@
+---
+title: "get_event_markets"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_event_markets()`
+
+Get Event Markets
+
+## Usage
+
+```r
+get_event_markets(
+  event_ticker,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `event_ticker` | Character. The event ticker. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with market information for the event.
+
+## Description
+
+Retrieves all markets associated with a specific event.
+
+## Examples
+
+```r
+## Not run: 
+markets <- get_event_markets("KXHIGHNY-25FEB08")
+
+## End(Not run)
+```
+
+## See also
+
+Other events: 
+`get_event()`,
+`get_events()`
+

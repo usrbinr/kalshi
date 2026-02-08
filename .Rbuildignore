@@ -1,3 +1,20 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-kalshi.R
+^\.claude$
+^CLAUDE\.md$
+^kalshi-key.*\.key$
+^\.Renviron$
+
+# qrtdown
+^docs$
+^\.quarto$
+^_quarto\.yml$
+^_qrtdown\.yml$
+^reference$
+^reference\.qmd$
+^articles\.qmd$
+^citation\.qmd$
+^index\.qmd$
+^vignettes/articles$
+^llms\.txt$
+_freeze

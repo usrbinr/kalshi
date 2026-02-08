@@ -1,0 +1,62 @@
+---
+title: "batch_create_orders"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `batch_create_orders()`
+
+Batch Create Orders
+
+## Usage
+
+```r
+batch_create_orders(orders, kalshi_access_token = "KALSHI_API", demo = FALSE)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `orders` | List of order specifications. Each order should be a list with: ticker, side, action, count, type, and optionally yes_price/no_price. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with created orders and any errors.
+
+## Description
+
+Creates multiple orders in a single request. Limited to 20 orders per batch.
+
+## Examples
+
+```r
+## Not run: 
+orders <- list(
+  list(
+    ticker = "MARKET1", side = "yes", action = "buy",
+    count = 10, type = "limit", yes_price = 45
+  ),
+  list(
+    ticker = "MARKET2", side = "no", action = "buy",
+    count = 5, type = "limit", no_price = 30
+  )
+)
+result <- batch_create_orders(orders)
+
+## End(Not run)
+```
+
+## See also
+
+Other trading: 
+`amend_order()`,
+`batch_cancel_orders()`,
+`cancel_all_orders()`,
+`cancel_order()`,
+`create_order()`,
+`decrease_order()`,
+`get_order()`
+

@@ -1,0 +1,72 @@
+---
+title: "get_candlesticks"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_candlesticks()`
+
+Get Market Candlesticks
+
+## Usage
+
+```r
+get_candlesticks(
+  ticker,
+  series_ticker,
+  period_interval = 60,
+  start = NULL,
+  end = NULL,
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. The market ticker. |
+| `series_ticker` | Character. The series ticker for this market. |
+| `period_interval` | Integer. Candle period in minutes: 1, 60, or 1440. |
+| `start` | Date, character, or integer. Start date/timestamp. Accepts "2026-02-01", as.Date(), or Unix seconds. Defaults to 30 days ago. |
+| `end` | Date, character, or integer. End date/timestamp. Accepts "2026-02-07", as.Date(), or Unix seconds. Defaults to now. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with OHLC data: time, open, high, low, close, volume.
+
+## Description
+
+Retrieves historical OHLC price data for a specific market.
+
+## Examples
+
+```r
+## Not run: 
+# Using dates (simple)
+candles <- get_candlesticks(
+  ticker = "KXHIGHNY-26FEB07-B26.5",
+  series_ticker = "KXHIGHNY",
+  start = "2026-02-06",
+  end = "2026-02-08"
+)
+
+# Using period interval
+candles <- get_candlesticks(
+  ticker = "KXHIGHNY-26FEB07-B26.5",
+  series_ticker = "KXHIGHNY",
+  period_interval = 1  # 1-minute candles
+)
+
+## End(Not run)
+```
+
+## See also
+
+Other markets: 
+`get_market()`,
+`get_markets()`,
+`get_orderbook()`,
+`get_trades()`
+

@@ -9,3 +9,10 @@
 .python-version
 __pycache__/
 inst/doc
+.claude/
+CLAUDE.md
+
+# qrtdown
+_quarto.yml
+/.quarto/
+**/*.quarto_ipynb

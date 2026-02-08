@@ -1,0 +1,55 @@
+---
+title: "get_event"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_event()`
+
+Get Single Event
+
+## Usage
+
+```r
+get_event(
+  event_ticker,
+  with_nested_markets = FALSE,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `event_ticker` | Character. The event ticker (e.g., "KXHIGHNY-25FEB08"). |
+| `with_nested_markets` | Logical. Include nested market data. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with complete event details, optionally including markets.
+
+## Description
+
+Retrieves detailed information for a specific event by ticker.
+
+## Examples
+
+```r
+## Not run: 
+event <- get_event("KXHIGHNY-25FEB08", with_nested_markets = TRUE)
+event$title
+event$markets
+
+## End(Not run)
+```
+
+## See also
+
+Other events: 
+`get_event_markets()`,
+`get_events()`
+

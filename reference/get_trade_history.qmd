@@ -1,0 +1,65 @@
+---
+title: "get_trade_history"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_trade_history()`
+
+Get Trade History
+
+## Usage
+
+```r
+get_trade_history(
+  ticker = NULL,
+  min_ts = NULL,
+  max_ts = NULL,
+  limit = 1000,
+  max_pages = 10,
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. Filter by market ticker. Optional. |
+| `min_ts` | Integer. Minimum timestamp (Unix ms). |
+| `max_ts` | Integer. Maximum timestamp (Unix ms). |
+| `limit` | Integer. Results per page (1-1000). Defaults to 1000. |
+| `max_pages` | Integer. Maximum pages to fetch. Defaults to 10. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with trade information.
+
+## Description
+
+Retrieves all historical trades for a market or across all markets.
+
+## Examples
+
+```r
+## Not run: 
+# Get all trades for a market
+trades <- get_trade_history(ticker = "KXHIGHNY-25FEB08-B54")
+
+# Get recent trades across all markets
+trades <- get_trade_history(max_pages = 5)
+
+## End(Not run)
+```
+
+## See also
+
+Other history: 
+`get_event_candlesticks()`,
+`get_event_results()`,
+`get_market_history()`,
+`get_series_history()`,
+`get_settled_events()`,
+`get_settled_markets()`
+

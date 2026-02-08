@@ -1,0 +1,59 @@
+---
+title: "get_series_history"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_series_history()`
+
+Get Series History
+
+## Usage
+
+```r
+get_series_history(
+  series_ticker,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `series_ticker` | Character. The series ticker (e.g., "KXHIGHNY"). |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with all settled markets for the series.
+
+## Description
+
+Retrieves all historical results for a series, including all settled
+events and their market outcomes. Useful for backtesting and analysis.
+
+## Examples
+
+```r
+## Not run: 
+# Get full history for NYC temperature series
+history <- get_series_history("KXHIGHNY")
+
+## End(Not run)
+```
+
+## See also
+
+Other history: 
+`get_event_candlesticks()`,
+`get_event_results()`,
+`get_market_history()`,
+`get_settled_events()`,
+`get_settled_markets()`,
+`get_trade_history()`
+

@@ -1,0 +1,66 @@
+---
+title: "amend_order"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `amend_order()`
+
+Amend Order
+
+## Usage
+
+```r
+amend_order(
+  order_id,
+  count = NULL,
+  yes_price = NULL,
+  no_price = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `order_id` | Character. The order ID to amend. |
+| `count` | Integer. New total contract count. Optional. |
+| `yes_price` | Integer. New yes price in cents. Optional. |
+| `no_price` | Integer. New no price in cents. Optional. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with the amended order details.
+
+## Description
+
+Amends an existing resting order's price and/or quantity.
+
+## Examples
+
+```r
+## Not run: 
+# Change price to 50 cents
+amend_order("order-uuid", yes_price = 50)
+
+# Change quantity to 20 contracts
+amend_order("order-uuid", count = 20)
+
+## End(Not run)
+```
+
+## See also
+
+Other trading: 
+`batch_cancel_orders()`,
+`batch_create_orders()`,
+`cancel_all_orders()`,
+`cancel_order()`,
+`create_order()`,
+`decrease_order()`,
+`get_order()`
+

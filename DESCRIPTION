@@ -1,23 +1,30 @@
 Package: kalshi
 Type: Package
-Title: What the Package Does (Title Case)
+Title: R Client for the Kalshi Prediction Market API
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "Alejandro", "Hagan",
+      email = "alejandro@example.com",
       role = c("aut", "cre")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: Provides functions to interact with the Kalshi prediction market
+    API. Supports authentication via RSA-PSS signing, retrieving market data,
+    events, series, and portfolio information.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
-Suggests: 
+Suggests:
     knitr,
-    rmarkdown
-VignetteBuilder: knitr
-Imports: 
-    openssl
+    rmarkdown,
+    quarto,
+    qrtdown
+Imports:
+    cli,
+    httr2,
+    openssl,
+    purrr,
+    tibble,
+    usethis

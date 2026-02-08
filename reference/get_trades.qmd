@@ -1,0 +1,63 @@
+---
+title: "get_trades"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_trades()`
+
+Get Market Trades
+
+## Usage
+
+```r
+get_trades(
+  ticker = NULL,
+  limit = 100,
+  min_ts = NULL,
+  max_ts = NULL,
+  max_pages = 1,
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. Optional market ticker to filter trades. |
+| `limit` | Integer. Number of trades to return (1-1000). Defaults to 100. |
+| `min_ts` | Integer. Minimum timestamp (Unix ms) filter. |
+| `max_ts` | Integer. Maximum timestamp (Unix ms) filter. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with trade information.
+
+## Description
+
+Retrieves recent trades for all markets or a specific market.
+
+## Examples
+
+```r
+## Not run: 
+# Get recent trades
+trades <- get_trades(limit = 50)
+
+# Get trades for specific market
+trades <- get_trades(ticker = "KXHIGHNY-25FEB08-B54")
+
+## End(Not run)
+```
+
+## See also
+
+Other markets: 
+`get_candlesticks()`,
+`get_market()`,
+`get_markets()`,
+`get_orderbook()`
+

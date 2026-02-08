@@ -1,0 +1,76 @@
+---
+title: "get_event_candlesticks"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_event_candlesticks()`
+
+Get Event Candlesticks
+
+## Usage
+
+```r
+get_event_candlesticks(
+  event_ticker = NULL,
+  series_ticker,
+  date = NULL,
+  period_interval = 60,
+  start = NULL,
+  end = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `event_ticker` | Character. The event ticker. If NULL, use series_ticker + date. |
+| `series_ticker` | Character. The series ticker. |
+| `date` | Date or character. The event date (used if event_ticker is NULL). |
+| `period_interval` | Integer. Candle period in minutes: 1, 60, or 1440. |
+| `start` | Date, character, or integer. Start date/timestamp. |
+| `end` | Date, character, or integer. End date/timestamp. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with OHLC data.
+
+## Description
+
+Retrieves aggregated historical OHLC data across all markets in an event.
+
+## Examples
+
+```r
+## Not run: 
+# Using series + date
+candles <- get_event_candlesticks(
+  series_ticker = "KXHIGHNY",
+  date = "2026-02-07",
+  period_interval = 60
+)
+
+# Using full event ticker
+candles <- get_event_candlesticks(
+  event_ticker = "KXHIGHNY-26FEB07",
+  series_ticker = "KXHIGHNY"
+)
+
+## End(Not run)
+```
+
+## See also
+
+Other history: 
+`get_event_results()`,
+`get_market_history()`,
+`get_series_history()`,
+`get_settled_events()`,
+`get_settled_markets()`,
+`get_trade_history()`
+

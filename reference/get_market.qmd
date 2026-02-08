@@ -1,0 +1,50 @@
+---
+title: "get_market"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_market()`
+
+Get Single Market
+
+## Usage
+
+```r
+get_market(ticker, kalshi_access_token = "KALSHI_API", demo = FALSE)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. The market ticker (e.g., "KXHIGHNY-25FEB08-B54"). |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with complete market details.
+
+## Description
+
+Retrieves detailed information for a specific market by ticker.
+
+## Examples
+
+```r
+## Not run: 
+market <- get_market("KXHIGHNY-25FEB08-B54")
+market$title
+
+## End(Not run)
+```
+
+## See also
+
+Other markets: 
+`get_candlesticks()`,
+`get_markets()`,
+`get_orderbook()`,
+`get_trades()`
+

@@ -1,0 +1,113 @@
+---
+title: "Authenticating with the Kalshi API"
+---
+
+```{r}
+#| include: false
+#| eval: false
+```
+
+The `kalshi` package uses a secure, "Pure R" approach to authentication. Instead of relying on external Python libraries, it interfaces directly with your system's `openssl` tool to perform RSA-PSS signing.
+
+## Prerequisite: OpenSSL
+
+This package requires the `openssl` command-line tool. Most Linux and macOS systems have this pre-installed. You can verify it by running:
+
+```{r}
+#| eval: false
+library(kalshi)
+check_openssl_installed()
+```
+
+## First-Time Setup: Generating Keys
+
+If you do not already have an RSA key pair, generate one:
+
+```{r}
+#| eval: false
+generate_kalshi_keypair("kalshi-key.key")
+```
+This creates a private `.key` file and displays the **Public Key** in your console.
+
+### Registering with Kalshi
+
+1. Copy the **Public Key** printed in your console.
+2. Log in to the [Kalshi Developer Dashboard](https://kalshi.com/account/api-keys).
+3. Click "Create API Key" and paste your public key.
+4. Save the **Key ID** (a UUID) that Kalshi provides.
+
+## Step 1: Environment Variables
+
+Add your Key ID to your `.Renviron` file:
+
+```{r}
+#| eval: false
+usethis::edit_r_environ()
+```
+
+Add this line:
+
+```
+KALSHI_API=your-uuid-here
+```
+
+Save and restart R.
+
+## Step 2: Session Setup
+
+Before making API calls, point the package to your private RSA key:
+
+```{r}
+#| eval: false
+kalshi_auth_setup("kalshi-key.key")
+```
+
+## Making API Calls
+
+Once authenticated, you can call any function:
+
+```{r}
+#| eval: false
+# Get your account balance
+bal <- get_balance()
+cat("Balance: $", bal$balance / 100, "\n")
+
+# Get market data
+markets <- get_markets(status = "open", limit = 10)
+
+# Get series information
+series <- get_series_list(max_pages = 1)
+```
+
+## How Authentication Works
+
+When you call a function like `get_markets()`:
+1. **Validation**: `check_kalshi_auth()` ensures you've run the setup.
+2. **Signing**: A message (`timestamp + method + path`) is signed using RSA-PSS via the system `openssl` binary.
+3. **Request**: `httr2` attaches the signature and your Key ID to the headers.
+
+## Security Considerations
+
+* **Key Safety**: Your private key is never read into R memory; it is only accessed by the system OpenSSL tool.
+* **Git Safety**: Ensure `*.key` and `.Renviron` are in your `.gitignore`.
+
+## Troubleshooting
+
+If you see `OpenSSL system call failed`, verify the binary is available:
+
+```bash
+which openssl
+openssl version
+```
+
+On Ubuntu/Debian:
+
+```bash
+sudo apt update && sudo apt install openssl
+```
+
+On macOS:
+
+```bash
+brew install openssl
+```

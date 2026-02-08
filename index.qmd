@@ -1,0 +1,92 @@
+---
+title: kalshi
+toc: false
+---
+
+::: {.column-margin}
+
+### License
+
+MIT + file LICENSE
+
+### Citation
+
+[Citing this package](citation.qmd)
+
+### Authors
+
+- Alejandro Hagan (author, maintainer)
+
+:::
+
+R client for the [Kalshi](https://kalshi.com) prediction market API.
+
+## Installation
+
+```r
+# From source
+devtools::install()
+```
+
+## Quick Start
+
+```r
+library(kalshi)
+# Setup authentication (see Authentication section)
+kalshi_auth_setup("kalshi-key.key")
+
+# Check balance
+get_balance()
+
+# Get open markets
+get_markets(status = "open", limit = 10)
+
+# Get weather event results
+get_event_results(series_ticker = "KXHIGHNY", date = "2026-02-07")
+
+# Track price evolution
+get_candlesticks(
+  ticker = "KXHIGHNY-26FEB07-B26.5",
+  series_ticker = "KXHIGHNY",
+  start = "2026-02-06",
+  end = "2026-02-08"
+)
+```
+
+## Authentication
+
+1. Generate key pair:
+   ```r
+   generate_kalshi_keypair("kalshi-key.key")
+   ```
+
+2. Upload public key to [Kalshi API Keys](https://kalshi.com/account/api-keys)
+
+3. Add Key ID to `.Renviron`:
+   ```
+   KALSHI_API=your-key-id-here
+   ```
+
+4. Each session:
+   ```r
+   kalshi_auth_setup("kalshi-key.key")
+   ```
+
+## Features
+
+- **Market Data**: Browse markets, series, events, orderbooks
+- **Historical Analysis**: Price history, settled markets, candlesticks
+- **Portfolio**: Balance, positions, orders, fills, settlements
+- **Trading**: Create, cancel, amend orders (single and batch)
+- **Simplified Dates**: Use `"2026-02-07"` instead of Unix timestamps
+
+## Documentation
+
+```r
+qrtdown::preview_site()
+```
+
+Or see the `docs/` folder.
+
+## License
+MIT

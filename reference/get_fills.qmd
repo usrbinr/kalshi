@@ -1,0 +1,59 @@
+---
+title: "get_fills"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_fills()`
+
+Get Fills
+
+## Usage
+
+```r
+get_fills(
+  ticker = NULL,
+  order_id = NULL,
+  limit = 100,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. Filter by specific market ticker. |
+| `order_id` | Character. Filter by specific order ID. |
+| `limit` | Integer. Results per page (1-1000). Defaults to 100. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with fill information.
+
+## Description
+
+Retrieves your trade fills (executed trades).
+
+## Examples
+
+```r
+## Not run: 
+fills <- get_fills()
+
+## End(Not run)
+```
+
+## See also
+
+Other portfolio: 
+`get_balance()`,
+`get_orders()`,
+`get_positions()`,
+`get_settlements()`
+

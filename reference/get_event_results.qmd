@@ -1,0 +1,64 @@
+---
+title: "get_event_results"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_event_results()`
+
+Get Event Results
+
+## Usage
+
+```r
+get_event_results(
+  event_ticker = NULL,
+  series_ticker = NULL,
+  date = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `event_ticker` | Character. The event ticker (e.g., "KXHIGHNY-26FEB07"). If NULL, series_ticker and date must be provided. |
+| `series_ticker` | Character. The series ticker (e.g., "KXHIGHNY"). Used with date parameter. |
+| `date` | Date or character. The event date (e.g., "2026-02-07" or as.Date()). Used with series_ticker parameter. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with market results for the event.
+
+## Description
+
+Retrieves all markets and their outcomes for a specific event.
+Accepts either a full event ticker or a series ticker with a date.
+
+## Examples
+
+```r
+## Not run: 
+# Using full event ticker
+results <- get_event_results("KXHIGHNY-26FEB07")
+
+# Using series + date (simpler)
+results <- get_event_results(series_ticker = "KXHIGHNY", date = "2026-02-07")
+
+## End(Not run)
+```
+
+## See also
+
+Other history: 
+`get_event_candlesticks()`,
+`get_market_history()`,
+`get_series_history()`,
+`get_settled_events()`,
+`get_settled_markets()`,
+`get_trade_history()`
+

@@ -1,0 +1,41 @@
+---
+title: "kalshi_auth_setup"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `kalshi_auth_setup()`
+
+Set up Kalshi Authentication
+
+## Usage
+
+```r
+kalshi_auth_setup(path)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `path` | Character. The absolute or relative path to your '.key' or '.pem' file. |
+
+## Value
+
+Invisibly returns the normalized path.
+
+## Description
+
+Configures the session by pointing the package to your private RSA key.
+This path is stored in an internal environment and used automatically
+for all subsequent API requests.
+
+## Examples
+
+```r
+## Not run: 
+kalshi_auth_setup("path/to/your/kalshi-key.key")
+
+## End(Not run)
+```
+

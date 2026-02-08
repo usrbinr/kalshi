@@ -1,0 +1,44 @@
+---
+title: "sign_kalshi_request"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `sign_kalshi_request()`
+
+Internal RSA-PSS Signing via OpenSSL System Call
+
+## Usage
+
+```r
+sign_kalshi_request(timestamp, method, path)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `timestamp` | Character. A millisecond Unix timestamp string. |
+| `method` | Character. The HTTP method in uppercase (e.g., "GET", "POST"). |
+| `path` | Character. The API endpoint path without query parameters. |
+
+## Value
+
+A base64-encoded string containing the RSA-PSS signature.
+
+## Description
+
+Performs RSA-PSS signing using the system's 'openssl' binary to generate
+the 'KALSHI-ACCESS-SIGNATURE' header.
+
+## Details
+
+The R 'openssl' package does not expose RSA-PSS padding, so this function
+interfaces directly with the system's 'openssl' installation.
+
+Signature is generated using:
+- Message: 'timestamp + method + path'
+- Algorithm: SHA-256
+- Padding: RSA-PSS
+- Salt Length: Equal to digest length (32 bytes)
+

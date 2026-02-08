@@ -1,0 +1,40 @@
+---
+title: "check_openssl_installed"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `check_openssl_installed()`
+
+Check for OpenSSL System Dependency
+
+## Usage
+
+```r
+check_openssl_installed()
+```
+
+## Value
+
+Returns 'TRUE' invisibly if found; otherwise, throws an error.
+
+## Description
+
+Verifies that the 'openssl' command-line tool is installed and accessible
+via the system's PATH. Required for RSA-PSS signing.
+
+## Examples
+
+```r
+## Not run: 
+check_openssl_installed()
+
+## End(Not run)
+```
+
+## See also
+
+Other authentication: 
+`generate_kalshi_keypair()`,
+`get_kalshi_access_token()`
+

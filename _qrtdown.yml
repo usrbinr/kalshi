@@ -1,0 +1,16 @@
+url: .na.character
+template:
+  theme: cosmo
+  code_overflow: wrap
+navbar:
+  title: kalshi 0.1.0
+  left:
+  - text: Reference
+    href: reference.qmd
+  - text: Articles
+  right:
+  - icon: code-square
+    href: .na.character
+    aria-label: Source code
+reference: []
+articles: []

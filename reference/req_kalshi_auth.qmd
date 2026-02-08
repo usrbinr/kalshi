@@ -1,0 +1,38 @@
+---
+title: "req_kalshi_auth"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `req_kalshi_auth()`
+
+Authenticate a Kalshi API Request
+
+## Usage
+
+```r
+req_kalshi_auth(req, kalshi_access_token = "KALSHI_API")
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `req` | An 'httr2' request object. |
+| `kalshi_access_token` | Character. The name of the environment variable containing your Kalshi Key ID. Defaults to '"KALSHI_API"'. |
+
+## Value
+
+A modified 'httr2' request object with authentication headers.
+
+## Description
+
+Implements the Kalshi V2 API authentication protocol. Extracts metadata
+from an 'httr2' request, generates a SHA-256 RSA-PSS signature, and
+attaches the required headers.
+
+## Details
+
+The function signs the base path without query parameters, as required by
+Kalshi's authentication scheme.
+

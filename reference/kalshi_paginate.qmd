@@ -1,0 +1,42 @@
+---
+title: "kalshi_paginate"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `kalshi_paginate()`
+
+Paginate Through Kalshi API Results
+
+## Usage
+
+```r
+kalshi_paginate(
+  path,
+  result_key,
+  query = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE,
+  max_pages = NULL
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `path` | Character. The API endpoint path. |
+| `result_key` | Character. The key in the response containing results. |
+| `query` | Named list. Additional query parameters. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+| `max_pages` | Integer. Maximum number of pages to fetch. NULL for all. |
+
+## Value
+
+A list of all results across pages.
+
+## Description
+
+Internal helper to handle cursor-based pagination.
+

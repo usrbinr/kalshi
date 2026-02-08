@@ -1,0 +1,91 @@
+---
+title: "create_order"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `create_order()`
+
+Create Order
+
+## Usage
+
+```r
+create_order(
+  ticker,
+  side,
+  action,
+  count,
+  type = "limit",
+  yes_price = NULL,
+  no_price = NULL,
+  expiration_ts = NULL,
+  sell_position_floor = NULL,
+  buy_max_cost = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. The market ticker. |
+| `side` | Character. Order side: "yes" or "no". |
+| `action` | Character. Order action: "buy" or "sell". |
+| `count` | Integer. Number of contracts. |
+| `type` | Character. Order type: "limit" or "market". Defaults to "limit". |
+| `yes_price` | Integer. Price in cents (1-99) for yes contracts. Required for limit orders. |
+| `no_price` | Integer. Price in cents (1-99) for no contracts. Alternative to yes_price. |
+| `expiration_ts` | Integer. Unix timestamp for order expiration. Optional. |
+| `sell_position_floor` | Integer. Minimum position to maintain when selling. Optional. |
+| `buy_max_cost` | Integer. Maximum cost in cents for buy orders. Optional. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with order details including order_id.
+
+## Description
+
+Creates a new order in a market. Orders can be limit or market orders,
+for either yes or no contracts.
+
+## Examples
+
+```r
+## Not run: 
+# Buy 10 yes contracts at 45 cents
+order <- create_order(
+  ticker = "KXHIGHNY-25FEB08-B54",
+  side = "yes",
+  action = "buy",
+  count = 10,
+  yes_price = 45
+)
+
+# Sell 5 no contracts at 60 cents
+order <- create_order(
+  ticker = "KXHIGHNY-25FEB08-B54",
+  side = "no",
+  action = "sell",
+  count = 5,
+  no_price = 60
+)
+
+## End(Not run)
+```
+
+## See also
+
+Other trading: 
+`amend_order()`,
+`batch_cancel_orders()`,
+`batch_create_orders()`,
+`cancel_all_orders()`,
+`cancel_order()`,
+`decrease_order()`,
+`get_order()`
+

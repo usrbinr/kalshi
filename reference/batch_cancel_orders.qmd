@@ -1,0 +1,56 @@
+---
+title: "batch_cancel_orders"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `batch_cancel_orders()`
+
+Batch Cancel Orders
+
+## Usage
+
+```r
+batch_cancel_orders(
+  order_ids,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `order_ids` | Character vector. Order IDs to cancel. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with cancelled orders and any errors.
+
+## Description
+
+Cancels multiple orders in a single request. Limited to 20 orders per batch.
+
+## Examples
+
+```r
+## Not run: 
+result <- batch_cancel_orders(c("order-1", "order-2", "order-3"))
+
+## End(Not run)
+```
+
+## See also
+
+Other trading: 
+`amend_order()`,
+`batch_create_orders()`,
+`cancel_all_orders()`,
+`cancel_order()`,
+`create_order()`,
+`decrease_order()`,
+`get_order()`
+

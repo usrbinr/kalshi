@@ -1,0 +1,53 @@
+---
+title: "get_order"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_order()`
+
+Get Single Order
+
+## Usage
+
+```r
+get_order(order_id, kalshi_access_token = "KALSHI_API", demo = FALSE)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `order_id` | Character. The order ID. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with complete order details.
+
+## Description
+
+Retrieves details for a specific order by ID.
+
+## Examples
+
+```r
+## Not run: 
+order <- get_order("order-uuid")
+order$status
+
+## End(Not run)
+```
+
+## See also
+
+Other trading: 
+`amend_order()`,
+`batch_cancel_orders()`,
+`batch_create_orders()`,
+`cancel_all_orders()`,
+`cancel_order()`,
+`create_order()`,
+`decrease_order()`
+

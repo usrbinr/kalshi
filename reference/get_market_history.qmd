@@ -1,0 +1,69 @@
+---
+title: "get_market_history"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_market_history()`
+
+Get Market History
+
+## Usage
+
+```r
+get_market_history(
+  ticker,
+  series_ticker = NULL,
+  include_candles = TRUE,
+  include_trades = TRUE,
+  period_interval = 60,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. The market ticker. |
+| `series_ticker` | Character. The series ticker (required for candlesticks). |
+| `include_candles` | Logical. Include candlestick data. Defaults to TRUE. |
+| `include_trades` | Logical. Include trade data. Defaults to TRUE. |
+| `period_interval` | Integer. Candle period in minutes: 1, 60, or 1440. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with candles and trades tibbles.
+
+## Description
+
+Retrieves historical trade and price data for a specific market.
+Combines candlestick data with trade information.
+
+## Examples
+
+```r
+## Not run: 
+history <- get_market_history(
+  ticker = "KXHIGHNY-25FEB08-B54",
+  series_ticker = "KXHIGHNY"
+)
+history$candles
+history$trades
+
+## End(Not run)
+```
+
+## See also
+
+Other history: 
+`get_event_candlesticks()`,
+`get_event_results()`,
+`get_series_history()`,
+`get_settled_events()`,
+`get_settled_markets()`,
+`get_trade_history()`
+

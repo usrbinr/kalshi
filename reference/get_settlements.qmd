@@ -1,0 +1,59 @@
+---
+title: "get_settlements"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_settlements()`
+
+Get Settlements
+
+## Usage
+
+```r
+get_settlements(
+  ticker = NULL,
+  event_ticker = NULL,
+  limit = 100,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. Filter by specific market ticker. |
+| `event_ticker` | Character. Filter by event ticker. |
+| `limit` | Integer. Results per page (1-1000). Defaults to 100. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with settlement information.
+
+## Description
+
+Retrieves your settlement history.
+
+## Examples
+
+```r
+## Not run: 
+settlements <- get_settlements()
+
+## End(Not run)
+```
+
+## See also
+
+Other portfolio: 
+`get_balance()`,
+`get_fills()`,
+`get_orders()`,
+`get_positions()`
+

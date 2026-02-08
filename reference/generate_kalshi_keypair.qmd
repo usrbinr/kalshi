@@ -1,0 +1,55 @@
+---
+title: "generate_kalshi_keypair"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `generate_kalshi_keypair()`
+
+Generate an RSA Key Pair for Kalshi API Authentication
+
+## Usage
+
+```r
+generate_kalshi_keypair(private_key_path = "kalshi-key.key")
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `private_key_path` | Character. The file path where the private key should be saved. Defaults to '"kalshi-key.key"'. |
+
+## Value
+
+Returns the public key PEM string invisibly.
+
+## Description
+
+Generates a 2048-bit RSA key pair required for Kalshi's V2 API authentication.
+Saves the private key to a local file and prints the public key to the console
+for uploading to the Kalshi Developer Dashboard.
+
+## Details
+
+Kalshi uses RSA-PSS signing for API requests. To use the API, you must:
+1. Generate a key pair using this function.
+2. Keep the '.key' file secure (add it to your '.gitignore').
+3. Copy the public key text printed in the console.
+4. Log into the Kalshi Dashboard and upload the public key to receive your Key ID.
+
+## Examples
+
+```r
+## Not run: 
+generate_kalshi_keypair("my_kalshi_key.key")
+
+## End(Not run)
+```
+
+## See also
+
+Other authentication: 
+`check_openssl_installed()`,
+`get_kalshi_access_token()`
+

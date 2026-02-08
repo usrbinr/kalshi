@@ -1,0 +1,57 @@
+---
+title: "get_kalshi_access_token"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_kalshi_access_token()`
+
+Retrieve Kalshi Access Token from Environment
+
+## Usage
+
+```r
+get_kalshi_access_token(kalshi_access_token = "KALSHI_API")
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `kalshi_access_token` | Character. The name of the environment variable where your Kalshi API Key ID is stored. Defaults to '"KALSHI_API"'. |
+
+## Value
+
+Returns the API Key ID string.
+
+## Description
+
+Retrieves a stored Kalshi API Key ID from the system environment.
+If not found, prompts the user to edit their '.Renviron' file.
+
+## Details
+
+Storing API keys in your '.Renviron' file is a best practice to avoid
+hard-coding secrets into your scripts.
+
+To set your key:
+1. Run 'usethis::edit_r_environ()'
+2. Add a line: 'KALSHI_API=your_key_id_here'
+3. Save and restart R.
+
+## Examples
+
+```r
+## Not run: 
+key_id <- get_kalshi_access_token()
+key_id <- get_kalshi_access_token("MY_PROD_KEY")
+
+## End(Not run)
+```
+
+## See also
+
+Other authentication: 
+`check_openssl_installed()`,
+`generate_kalshi_keypair()`
+

@@ -1,0 +1,59 @@
+---
+title: "decrease_order"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `decrease_order()`
+
+Decrease Order
+
+## Usage
+
+```r
+decrease_order(
+  order_id,
+  reduce_by,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `order_id` | Character. The order ID to decrease. |
+| `reduce_by` | Integer. Number of contracts to reduce by. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with the updated order details.
+
+## Description
+
+Decreases the remaining quantity of a resting order. Setting to 0 cancels the order.
+
+## Examples
+
+```r
+## Not run: 
+# Reduce order by 5 contracts
+decrease_order("order-uuid", reduce_by = 5)
+
+## End(Not run)
+```
+
+## See also
+
+Other trading: 
+`amend_order()`,
+`batch_cancel_orders()`,
+`batch_create_orders()`,
+`cancel_all_orders()`,
+`cancel_order()`,
+`create_order()`,
+`get_order()`
+

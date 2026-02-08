@@ -1,0 +1,42 @@
+---
+title: "kalshi_request"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `kalshi_request()`
+
+Build a Kalshi API Request
+
+## Usage
+
+```r
+kalshi_request(
+  path,
+  method = "GET",
+  query = NULL,
+  body = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `path` | Character. The API endpoint path (e.g., "/trade-api/v2/markets"). |
+| `method` | Character. HTTP method. Defaults to "GET". |
+| `query` | Named list. Query parameters to append. |
+| `body` | List. Request body for POST/PUT requests. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+An httr2 request object ready to perform.
+
+## Description
+
+Internal helper to construct an authenticated httr2 request.
+

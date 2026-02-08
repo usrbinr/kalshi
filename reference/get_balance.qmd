@@ -1,0 +1,54 @@
+---
+title: "get_balance"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_balance()`
+
+Get Account Balance
+
+## Usage
+
+```r
+get_balance(kalshi_access_token = "KALSHI_API", demo = FALSE)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with balance information:
+
+- `balance`: Available balance in cents
+
+- `portfolio_value`: Current portfolio value in cents
+
+## Description
+
+Retrieves your current account balance and portfolio value.
+Values are returned in cents.
+
+## Examples
+
+```r
+## Not run: 
+bal <- get_balance()
+cat("Balance: $", bal$balance / 100, "\n")
+
+## End(Not run)
+```
+
+## See also
+
+Other portfolio: 
+`get_fills()`,
+`get_orders()`,
+`get_positions()`,
+`get_settlements()`
+

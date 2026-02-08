@@ -1,0 +1,55 @@
+---
+title: "Function reference"
+---
+
+All functions and classes exported by kalshi.
+
+## Functions
+
+| Function | Description |
+|----------|-------------|
+| [`amend_order()`](reference/amend_order.qmd) | Amend Order |
+| [`batch_cancel_orders()`](reference/batch_cancel_orders.qmd) | Batch Cancel Orders |
+| [`batch_create_orders()`](reference/batch_create_orders.qmd) | Batch Create Orders |
+| [`build_event_ticker()`](reference/build_event_ticker.qmd) | Build Event Ticker from Series and Date |
+| [`cancel_all_orders()`](reference/cancel_all_orders.qmd) | Cancel All Orders |
+| [`cancel_order()`](reference/cancel_order.qmd) | Cancel Order |
+| [`check_kalshi_auth()`](reference/check_kalshi_auth.qmd) | Validate Kalshi Authentication Setup |
+| [`check_openssl_installed()`](reference/check_openssl_installed.qmd) | Check for OpenSSL System Dependency |
+| [`create_order()`](reference/create_order.qmd) | Create Order |
+| [`decrease_order()`](reference/decrease_order.qmd) | Decrease Order |
+| [`generate_kalshi_keypair()`](reference/generate_kalshi_keypair.qmd) | Generate an RSA Key Pair for Kalshi API Authentication |
+| [`get_balance()`](reference/get_balance.qmd) | Get Account Balance |
+| [`get_candlesticks()`](reference/get_candlesticks.qmd) | Get Market Candlesticks |
+| [`get_event()`](reference/get_event.qmd) | Get Single Event |
+| [`get_event_candlesticks()`](reference/get_event_candlesticks.qmd) | Get Event Candlesticks |
+| [`get_event_markets()`](reference/get_event_markets.qmd) | Get Event Markets |
+| [`get_event_results()`](reference/get_event_results.qmd) | Get Event Results |
+| [`get_events()`](reference/get_events.qmd) | Get Events |
+| [`get_exchange_status()`](reference/get_exchange_status.qmd) | Get Exchange Status |
+| [`get_fills()`](reference/get_fills.qmd) | Get Fills |
+| [`get_kalshi_access_token()`](reference/get_kalshi_access_token.qmd) | Retrieve Kalshi Access Token from Environment |
+| [`get_market()`](reference/get_market.qmd) | Get Single Market |
+| [`get_market_history()`](reference/get_market_history.qmd) | Get Market History |
+| [`get_markets()`](reference/get_markets.qmd) | Get Markets |
+| [`get_order()`](reference/get_order.qmd) | Get Single Order |
+| [`get_orderbook()`](reference/get_orderbook.qmd) | Get Market Orderbook |
+| [`get_orders()`](reference/get_orders.qmd) | Get Orders |
+| [`get_positions()`](reference/get_positions.qmd) | Get Positions |
+| [`get_series()`](reference/get_series.qmd) | Get Single Series |
+| [`get_series_history()`](reference/get_series_history.qmd) | Get Series History |
+| [`get_series_list()`](reference/get_series_list.qmd) | Get Series List |
+| [`get_settled_events()`](reference/get_settled_events.qmd) | Get Settled Events |
+| [`get_settled_markets()`](reference/get_settled_markets.qmd) | Get Settled Markets |
+| [`get_settlements()`](reference/get_settlements.qmd) | Get Settlements |
+| [`get_trade_history()`](reference/get_trade_history.qmd) | Get Trade History |
+| [`get_trades()`](reference/get_trades.qmd) | Get Market Trades |
+| [`kalshi_auth_setup()`](reference/kalshi_auth_setup.qmd) | Set up Kalshi Authentication |
+| [`kalshi_base_url()`](reference/kalshi_base_url.qmd) | Get Kalshi Base URL |
+| [`kalshi_paginate()`](reference/kalshi_paginate.qmd) | Paginate Through Kalshi API Results |
+| [`kalshi_perform()`](reference/kalshi_perform.qmd) | Perform a Kalshi API Request |
+| [`kalshi_request()`](reference/kalshi_request.qmd) | Build a Kalshi API Request |
+| [`parse_timestamp()`](reference/parse_timestamp.qmd) | Parse Date Input to Unix Timestamp |
+| [`req_kalshi_auth()`](reference/req_kalshi_auth.qmd) | Authenticate a Kalshi API Request |
+| [`sign_kalshi_request()`](reference/sign_kalshi_request.qmd) | Internal RSA-PSS Signing via OpenSSL System Call |
+

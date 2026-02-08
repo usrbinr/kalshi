@@ -1,0 +1,32 @@
+---
+title: "build_event_ticker"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `build_event_ticker()`
+
+Build Event Ticker from Series and Date
+
+## Usage
+
+```r
+build_event_ticker(series_ticker, date)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `series_ticker` | Character. The series ticker. |
+| `date` | Date, character, or POSIXt. The event date. |
+
+## Value
+
+Character. The constructed event ticker.
+
+## Description
+
+Constructs a Kalshi event ticker from a series ticker and date.
+Format: SERIES-YYMMMDD (e.g., KXHIGHNY-26FEB07)
+

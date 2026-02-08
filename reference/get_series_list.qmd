@@ -1,0 +1,55 @@
+---
+title: "get_series_list"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_series_list()`
+
+Get Series List
+
+## Usage
+
+```r
+get_series_list(
+  category = NULL,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `category` | Character. Filter by category. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with series information including ticker, title, category,
+frequency, and settlement sources.
+
+## Description
+
+Retrieves all available series templates. A series represents a recurring
+event format (e.g., "Daily High Temperature in NYC").
+
+## Examples
+
+```r
+## Not run: 
+series <- get_series_list()
+head(series)
+
+## End(Not run)
+```
+
+## See also
+
+Other series: 
+`get_series()`
+

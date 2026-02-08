@@ -1,0 +1,60 @@
+---
+title: "get_positions"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_positions()`
+
+Get Positions
+
+## Usage
+
+```r
+get_positions(
+  ticker = NULL,
+  event_ticker = NULL,
+  limit = 100,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. Filter by specific market ticker. |
+| `event_ticker` | Character. Filter by event ticker. |
+| `limit` | Integer. Results per page (1-1000). Defaults to 100. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with position information including market ticker,
+position size, average price, and realized/unrealized P&L.
+
+## Description
+
+Retrieves your current positions across all markets.
+
+## Examples
+
+```r
+## Not run: 
+positions <- get_positions()
+
+## End(Not run)
+```
+
+## See also
+
+Other portfolio: 
+`get_balance()`,
+`get_fills()`,
+`get_orders()`,
+`get_settlements()`
+

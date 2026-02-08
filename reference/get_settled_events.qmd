@@ -1,0 +1,60 @@
+---
+title: "get_settled_events"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_settled_events()`
+
+Get Settled Events
+
+## Usage
+
+```r
+get_settled_events(
+  series_ticker = NULL,
+  limit = 100,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `series_ticker` | Character. Filter by series ticker. |
+| `limit` | Integer. Results per page (1-200). Defaults to 100. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with settled event information.
+
+## Description
+
+Retrieves settled events with optional filtering.
+
+## Examples
+
+```r
+## Not run: 
+# Get all settled events for a series
+events <- get_settled_events(series_ticker = "KXHIGHNY")
+
+## End(Not run)
+```
+
+## See also
+
+Other history: 
+`get_event_candlesticks()`,
+`get_event_results()`,
+`get_market_history()`,
+`get_series_history()`,
+`get_settled_markets()`,
+`get_trade_history()`
+

@@ -1,0 +1,30 @@
+---
+title: "kalshi_base_url"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `kalshi_base_url()`
+
+Get Kalshi Base URL
+
+## Usage
+
+```r
+kalshi_base_url(demo = FALSE)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `demo` | Logical. If 'TRUE', returns the demo environment URL. If 'FALSE' (default), returns the production URL. |
+
+## Value
+
+Character string with the base URL.
+
+## Description
+
+Returns the appropriate base URL for API requests.
+

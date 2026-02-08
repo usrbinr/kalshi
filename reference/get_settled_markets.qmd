@@ -1,0 +1,77 @@
+---
+title: "get_settled_markets"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_settled_markets()`
+
+Get Settled Markets
+
+## Usage
+
+```r
+get_settled_markets(
+  series_ticker = NULL,
+  event_ticker = NULL,
+  from = NULL,
+  to = NULL,
+  limit = 200,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `series_ticker` | Character. Filter by series ticker. |
+| `event_ticker` | Character. Filter by event ticker. |
+| `from` | Date, character, or integer. Start of date range. Accepts "2026-01-01", as.Date(), or Unix seconds. |
+| `to` | Date, character, or integer. End of date range. Accepts "2026-02-07", as.Date(), or Unix seconds. |
+| `limit` | Integer. Results per page (1-1000). Defaults to 200. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with settled market information including results.
+
+## Description
+
+Retrieves settled markets with optional date filtering. Useful for
+analyzing historical outcomes.
+
+## Examples
+
+```r
+## Not run: 
+# Get all settled markets for a series
+results <- get_settled_markets(series_ticker = "KXHIGHNY")
+
+# Get markets settled in a date range
+results <- get_settled_markets(
+  series_ticker = "KXHIGHNY",
+  from = "2026-01-01",
+  to = "2026-02-01"
+)
+
+# Get markets settled in the last 7 days
+results <- get_settled_markets(from = Sys.Date() - 7)
+
+## End(Not run)
+```
+
+## See also
+
+Other history: 
+`get_event_candlesticks()`,
+`get_event_results()`,
+`get_market_history()`,
+`get_series_history()`,
+`get_settled_events()`,
+`get_trade_history()`
+

@@ -1,0 +1,52 @@
+---
+title: "cancel_order"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `cancel_order()`
+
+Cancel Order
+
+## Usage
+
+```r
+cancel_order(order_id, kalshi_access_token = "KALSHI_API", demo = FALSE)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `order_id` | Character. The order ID to cancel. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with the cancelled order details.
+
+## Description
+
+Cancels an existing resting order by order ID.
+
+## Examples
+
+```r
+## Not run: 
+cancel_order("order-uuid-here")
+
+## End(Not run)
+```
+
+## See also
+
+Other trading: 
+`amend_order()`,
+`batch_cancel_orders()`,
+`batch_create_orders()`,
+`cancel_all_orders()`,
+`create_order()`,
+`decrease_order()`,
+`get_order()`
+

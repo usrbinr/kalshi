@@ -1,0 +1,30 @@
+---
+title: "parse_timestamp"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `parse_timestamp()`
+
+Parse Date Input to Unix Timestamp
+
+## Usage
+
+```r
+parse_timestamp(x)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `x` | Date, character, POSIXt, or numeric (already Unix timestamp). |
+
+## Value
+
+Integer. Unix timestamp in seconds.
+
+## Description
+
+Converts various date inputs to Unix timestamp (seconds).
+

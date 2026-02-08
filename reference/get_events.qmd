@@ -1,0 +1,64 @@
+---
+title: "get_events"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_events()`
+
+Get Events
+
+## Usage
+
+```r
+get_events(
+  status = NULL,
+  series_ticker = NULL,
+  with_nested_markets = FALSE,
+  limit = 100,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `status` | Character. Filter by status: "open", "closed", "settled". |
+| `series_ticker` | Character. Filter by series ticker. |
+| `with_nested_markets` | Logical. Include nested market data. |
+| `limit` | Integer. Results per page (1-200). Defaults to 100. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with event information.
+
+## Description
+
+Retrieves a list of events with optional filtering. An event is a specific
+occurrence within a series (e.g., "NYC High Temperature on Feb 8, 2025").
+
+## Examples
+
+```r
+## Not run: 
+# Get all open events
+events <- get_events(status = "open")
+
+# Get events for a specific series
+events <- get_events(series_ticker = "KXHIGHNY")
+
+## End(Not run)
+```
+
+## See also
+
+Other events: 
+`get_event()`,
+`get_event_markets()`
+

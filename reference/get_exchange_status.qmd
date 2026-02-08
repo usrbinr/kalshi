@@ -1,0 +1,44 @@
+---
+title: "get_exchange_status"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_exchange_status()`
+
+Get Exchange Status
+
+## Usage
+
+```r
+get_exchange_status(demo = FALSE)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `demo` | Logical. Use demo environment if TRUE. Defaults to FALSE. |
+
+## Value
+
+A list with exchange status information:
+
+- `exchange_active`: Whether the exchange is operational
+
+- `trading_active`: Whether trading is currently enabled
+
+## Description
+
+Retrieves the current operational status of the Kalshi exchange.
+
+## Examples
+
+```r
+## Not run: 
+status <- get_exchange_status()
+status$trading_active
+
+## End(Not run)
+```
+

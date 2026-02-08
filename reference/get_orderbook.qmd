@@ -1,0 +1,56 @@
+---
+title: "get_orderbook"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_orderbook()`
+
+Get Market Orderbook
+
+## Usage
+
+```r
+get_orderbook(
+  ticker,
+  depth = 10,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ticker` | Character. The market ticker. |
+| `depth` | Integer. Order book depth (0 or negative for all levels, 1-100 for specific depth). |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A list with yes and no order book levels.
+
+## Description
+
+Retrieves the current order book for a specific market showing bid depths.
+
+## Examples
+
+```r
+## Not run: 
+book <- get_orderbook("KXHIGHNY-25FEB08-B54")
+book$yes
+
+## End(Not run)
+```
+
+## See also
+
+Other markets: 
+`get_candlesticks()`,
+`get_market()`,
+`get_markets()`,
+`get_trades()`
+

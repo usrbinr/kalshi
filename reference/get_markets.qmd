@@ -1,0 +1,69 @@
+---
+title: "get_markets"
+---
+
+[< Back to Reference](../reference.qmd)
+
+# `get_markets()`
+
+Get Markets
+
+## Usage
+
+```r
+get_markets(
+  status = NULL,
+  series_ticker = NULL,
+  event_ticker = NULL,
+  tickers = NULL,
+  limit = 100,
+  max_pages = NULL,
+  kalshi_access_token = "KALSHI_API",
+  demo = FALSE
+)
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `status` | Character. Filter by status: "unopened", "open", "closed", "settled". |
+| `series_ticker` | Character. Filter by series ticker. |
+| `event_ticker` | Character. Filter by event ticker. |
+| `tickers` | Character vector. Specific market tickers to retrieve. |
+| `limit` | Integer. Results per page (1-1000). Defaults to 100. |
+| `max_pages` | Integer. Maximum pages to fetch. NULL for all. Defaults to NULL. |
+| `kalshi_access_token` | Character. Environment variable name for API key. |
+| `demo` | Logical. Use demo environment if TRUE. |
+
+## Value
+
+A tibble with market information including ticker, title, status,
+yes_price, no_price, volume, and other market details.
+
+## Description
+
+Retrieves a list of markets with optional filtering. Handles pagination
+automatically to return all matching results.
+
+## Examples
+
+```r
+## Not run: 
+# Get all open markets
+markets <- get_markets(status = "open")
+
+# Get markets for a specific series
+markets <- get_markets(series_ticker = "KXHIGHNY")
+
+## End(Not run)
+```
+
+## See also
+
+Other markets: 
+`get_candlesticks()`,
+`get_market()`,
+`get_orderbook()`,
+`get_trades()`
+

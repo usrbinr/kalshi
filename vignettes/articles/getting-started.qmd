@@ -1,0 +1,276 @@
+---
+title: "Getting Started with kalshi"
+---
+
+```{r}
+#| include: false
+#| eval: false
+```
+
+The `kalshi` package provides a complete R interface to the Kalshi prediction market API. This guide covers installation, authentication, and common use cases.
+
+## Installation
+
+```{r}
+#| eval: false
+# Install from local source
+devtools::install()
+
+# Or load for development
+devtools::load_all()
+```
+
+## Authentication Setup
+
+Kalshi uses RSA key-based authentication. You need to:
+
+1. Generate a key pair
+2. Upload the public key to Kalshi
+3. Store your API Key ID
+
+### Step 1: Generate Keys
+
+```{r}
+#| eval: false
+library(kalshi)
+
+# Generate RSA key pair
+generate_kalshi_keypair("kalshi-key.key")
+```
+
+This creates `kalshi-key.key` (private, keep secret) and prints the public key.
+
+### Step 2: Upload to Kalshi
+
+1. Copy the public key from the console
+2. Go to [Kalshi API Keys](https://kalshi.com/account/api-keys)
+3. Create a new API key and paste your public key
+4. Save the Key ID (a UUID like `5a2e774e-7f95-4bee-8e98-f4b29f5d38aa`)
+
+### Step 3: Store Key ID
+
+```{r}
+#| eval: false
+usethis::edit_r_environ()
+```
+
+Add this line to your `.Renviron`:
+```
+KALSHI_API=your-key-id-here
+```
+
+Restart R for changes to take effect.
+
+### Step 4: Authenticate Each Session
+
+```{r}
+#| eval: false
+library(kalshi)
+kalshi_auth_setup("kalshi-key.key")
+```
+
+## Basic Usage
+
+### Check Account Balance
+
+```{r}
+#| eval: false
+bal <- get_balance()
+cat("Balance: $", bal$balance / 100, "\n")
+cat("Portfolio value: $", bal$portfolio_value / 100, "\n")
+```
+
+### Browse Markets
+
+```{r}
+#| eval: false
+# Get open markets
+markets <- get_markets(status = "open", limit = 10)
+
+# Filter by series
+weather_markets <- get_markets(series_ticker = "KXHIGHNY", status = "open")
+```
+### Get Series Information
+
+```{r}
+#| eval: false
+# List all series
+series <- get_series_list()
+
+# Find weather series
+weather <- series[grepl("HIGH", series$ticker), ]
+
+# Get specific series details
+nyc <- get_series("KXHIGHNY")
+```
+
+## Weather Market Analysis
+
+### Get Event Results
+
+```{r}
+#| eval: false
+# Using simplified date input
+results <- get_event_results(
+  series_ticker = "KXHIGHNY",
+  date = "2026-02-07"
+)
+
+# See which bracket won
+results[results$result == "yes", c("title", "volume")]
+```
+
+### Track Price Evolution
+
+```{r}
+#| eval: false
+# Get hourly price history
+candles <- get_candlesticks(
+ ticker = "KXHIGHNY-26FEB07-B26.5",
+  series_ticker = "KXHIGHNY",
+  start = "2026-02-06",
+  end = "2026-02-08",
+  period_interval = 60  # hourly
+)
+
+# See the price journey
+candles[, c("time", "open", "high", "low", "close", "volume")]
+
+# Summary
+cat("Started at:", candles$open[1], "%\n")
+cat("Ended at:", candles$close[nrow(candles)], "%\n")
+```
+
+### Historical Analysis
+
+```{r}
+#| eval: false
+# Get all settled markets for a series
+history <- get_series_history("KXHIGHNY")
+
+# Get settled markets in a date range
+recent <- get_settled_markets(
+  series_ticker = "KXHIGHNY",
+  from = "2026-01-01",
+  to = "2026-02-01"
+)
+
+# Get markets from the last week
+last_week <- get_settled_markets(from = Sys.Date() - 7)
+```
+
+## Trading
+
+### Place Orders
+
+```{r}
+#| eval: false
+# Buy 10 yes contracts at 45 cents
+order <- create_order(
+  ticker = "KXHIGHNY-26FEB08-B26.5",
+  side = "yes",
+  action = "buy",
+  count = 10,
+  yes_price = 45
+)
+
+# Market order (no price needed)
+order <- create_order(
+  ticker = "KXHIGHNY-26FEB08-B26.5",
+  side = "yes",
+  action = "buy",
+  count = 10,
+  type = "market"
+)
+```
+
+### Manage Orders
+
+```{r}
+#| eval: false
+# View resting orders
+orders <- get_orders(status = "resting")
+
+# Cancel an order
+cancel_order(order$order_id)
+
+# Amend price
+amend_order(order$order_id, yes_price = 50)
+
+# Cancel all orders
+cancel_all_orders()
+```
+
+### View Portfolio
+
+```{r}
+#| eval: false
+# Current positions
+positions <- get_positions()
+
+# Trade history
+fills <- get_fills()
+
+# Settlement history
+settlements <- get_settlements()
+```
+
+## Date Input Formats
+
+All date parameters accept multiple formats:
+
+```{r}
+#| eval: false
+# String dates
+get_event_results(series_ticker = "KXHIGHNY", date = "2026-02-07")
+
+# R Date objects
+get_settled_markets(from = as.Date("2026-01-01"))
+
+# Relative dates
+get_settled_markets(from = Sys.Date() - 7)  # Last week
+
+# Date ranges
+get_candlesticks(
+  ticker = "...",
+  series_ticker = "...",
+  start = "2026-02-01",
+  end = "2026-02-07"
+)
+```
+
+## Available Weather Series
+
+| Series | Description |
+|--------|-------------|
+| `KXHIGHNY` | NYC high temperature |
+| `KXHIGHLA` | LA high temperature |
+| `KXHIGHMIA` | Miami high temperature |
+| `KXHIGHCHI` | Chicago high temperature |
+
+Find all series:
+```{r}
+#| eval: false
+series <- get_series_list()
+```
+
+## Error Handling
+
+The package uses `cli` for informative error messages:
+
+```{r}
+#| eval: false
+# If not authenticated
+get_balance()
+#> Error: Kalshi authentication has not been initialized.
+#> ℹ You must provide the path to your private RSA key.
+#> ✖ Please run: `kalshi_auth_setup()`.
+
+# If key file missing
+kalshi_auth_setup("nonexistent.key")
+#> Error: The private key file was not found at: nonexistent.key
+```
+
+## Function Reference
+
+See the [Reference](../reference.html) page for complete documentation of all 37 exported functions.

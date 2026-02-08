@@ -1,0 +1,2305 @@
+[
+  {
+    "objectID": "CLAUDE.html",
+    "href": "CLAUDE.html",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "R client for the Kalshi prediction market API.\n\n\nVersion: 0.1.0 Status: Functional, ready for use\n\n\n\nR/\n├── auth.R       # Authentication (RSA-PSS signing via system openssl)\n├── utils.R      # Internal helpers (request building, pagination, date parsing)\n├── markets.R    # Market data endpoints\n├── events.R     # Events and series endpoints\n├── portfolio.R  # Portfolio endpoints (balance, positions, orders, fills)\n├── orders.R     # Trading endpoints (create, cancel, amend orders)\n├── history.R    # Historical data analysis functions\n\n\n\n\n\n\nUses system openssl binary for RSA-PSS signing (R’s openssl package doesn’t expose PSS padding)\nPrivate key path stored in internal environment, never read into R memory\nAPI Key ID stored in .Renviron as KALSHI_API\n\n\n\n\n\nProduction: https://api.elections.kalshi.com\nDemo: https://demo-api.elections.kalshi.com\n\n\n\n\n\nAll list endpoints return tibbles\nPagination handled automatically via kalshi_paginate()\nDates can be passed as strings (“2026-02-07”), Date objects, or Unix timestamps\n\n\n\n\n\nhttr2 - HTTP requests\ncli - User-facing messages\npurrr - Functional programming\ntibble - Data frames\nopenssl - Key generation and base64 encoding\nusethis - Environment file editing\n\n\n\n\n\n\n\n\nkalshi_auth_setup(path) - Set private key path\ngenerate_kalshi_keypair(path) - Generate RSA key pair\nget_kalshi_access_token(env_var) - Get API key from environment\ncheck_openssl_installed() - Verify system openssl\nreq_kalshi_auth(req) - Add auth headers to request\n\n\n\n\n\nget_exchange_status() - Exchange operational status\n\n\n\n\n\nget_markets(status, series_ticker, ...) - List markets with filters\nget_market(ticker) - Single market details\nget_orderbook(ticker, depth) - Order book\nget_trades(ticker, limit, ...) - Public trades\nget_candlesticks(ticker, series_ticker, start, end) - OHLC price data\n\n\n\n\n\nget_series_list(category) - All series\nget_series(series_ticker) - Single series details\n\n\n\n\n\nget_events(status, series_ticker, ...) - List events\nget_event(event_ticker) - Single event details\nget_event_markets(event_ticker) - Markets for an event\n\n\n\n\n\nget_balance() - Account balance\nget_positions(ticker, ...) - Current positions\nget_orders(status, ...) - Order history\nget_fills(ticker, ...) - Trade fills\nget_settlements(ticker, ...) - Settlement history\n\n\n\n\n\ncreate_order(ticker, side, action, count, ...) - Place order\ncancel_order(order_id) - Cancel order\namend_order(order_id, count, price) - Modify order\ndecrease_order(order_id, reduce_by) - Reduce order size\nget_order(order_id) - Single order details\nbatch_create_orders(orders) - Create up to 20 orders\nbatch_cancel_orders(order_ids) - Cancel up to 20 orders\ncancel_all_orders(ticker) - Cancel all resting orders\n\n\n\n\n\nget_settled_markets(series_ticker, from, to) - Settled markets with date range\nget_settled_events(series_ticker) - Settled events\nget_series_history(series_ticker) - Full history for a series\nget_event_results(series_ticker, date) - Event outcomes (simplified date input)\nget_event_candlesticks(series_ticker, date) - Event OHLC data\nget_market_history(ticker, series_ticker) - Market candles + trades\nget_trade_history(ticker, ...) - Historical trades\n\n\n\n\n\n\n\nlibrary(kalshi)\n\n# First time: generate key pair\ngenerate_kalshi_keypair(\"kalshi-key.key\")\n# Upload public key to Kalshi dashboard, get Key ID\n\n# Add to .Renviron: KALSHI_API=your-key-id\nusethis::edit_r_environ()\n\n# Each session: set key path\nkalshi_auth_setup(\"kalshi-key.key\")\n\n\n\n# Get results for NYC temperature on a specific date\nresults &lt;- get_event_results(series_ticker = \"KXHIGHNY\", date = \"2026-02-07\")\n\n# See price evolution (hourly candles)\ncandles &lt;- get_candlesticks(\n  ticker = \"KXHIGHNY-26FEB07-B26.5\",\n  series_ticker = \"KXHIGHNY\",\n  start = \"2026-02-06\",\n  end = \"2026-02-08\",\n  period_interval = 60\n)\n\n# Get all historical results for a series\nhistory &lt;- get_series_history(\"KXHIGHNY\")\n\n\n\n# Place a limit order\norder &lt;- create_order(\n  ticker = \"KXHIGHNY-26FEB08-B26.5\",\n  side = \"yes\",\n  action = \"buy\",\n  count = 10,\n  yes_price = 45\n)\n\n# Cancel it\ncancel_order(order$order_id)\n\n\n\n\nBuilt with qrtdown. Site at docs/index.html.\nqrtdown::build_site()\nqrtdown::preview_site()\n\n\n\ndevtools::check(remote = TRUE, manual = TRUE)\n\n\n\n\n*.key - Private keys (in .gitignore)\n.Renviron - Contains API key ID (in .gitignore)\n\n\n\n\n\nKXHIGHNY - NYC high temperature\nKXHIGHLA - LA high temperature\nKXHIGHMIA - Miami high temperature\nKXHIGHCHI - Chicago high temperature"
+  },
+  {
+    "objectID": "CLAUDE.html#project-status",
+    "href": "CLAUDE.html#project-status",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "Version: 0.1.0 Status: Functional, ready for use"
+  },
+  {
+    "objectID": "CLAUDE.html#package-structure",
+    "href": "CLAUDE.html#package-structure",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "R/\n├── auth.R       # Authentication (RSA-PSS signing via system openssl)\n├── utils.R      # Internal helpers (request building, pagination, date parsing)\n├── markets.R    # Market data endpoints\n├── events.R     # Events and series endpoints\n├── portfolio.R  # Portfolio endpoints (balance, positions, orders, fills)\n├── orders.R     # Trading endpoints (create, cancel, amend orders)\n├── history.R    # Historical data analysis functions"
+  },
+  {
+    "objectID": "CLAUDE.html#key-design-decisions",
+    "href": "CLAUDE.html#key-design-decisions",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "Uses system openssl binary for RSA-PSS signing (R’s openssl package doesn’t expose PSS padding)\nPrivate key path stored in internal environment, never read into R memory\nAPI Key ID stored in .Renviron as KALSHI_API\n\n\n\n\n\nProduction: https://api.elections.kalshi.com\nDemo: https://demo-api.elections.kalshi.com\n\n\n\n\n\nAll list endpoints return tibbles\nPagination handled automatically via kalshi_paginate()\nDates can be passed as strings (“2026-02-07”), Date objects, or Unix timestamps\n\n\n\n\n\nhttr2 - HTTP requests\ncli - User-facing messages\npurrr - Functional programming\ntibble - Data frames\nopenssl - Key generation and base64 encoding\nusethis - Environment file editing"
+  },
+  {
+    "objectID": "CLAUDE.html#exported-functions-37-total",
+    "href": "CLAUDE.html#exported-functions-37-total",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "kalshi_auth_setup(path) - Set private key path\ngenerate_kalshi_keypair(path) - Generate RSA key pair\nget_kalshi_access_token(env_var) - Get API key from environment\ncheck_openssl_installed() - Verify system openssl\nreq_kalshi_auth(req) - Add auth headers to request\n\n\n\n\n\nget_exchange_status() - Exchange operational status\n\n\n\n\n\nget_markets(status, series_ticker, ...) - List markets with filters\nget_market(ticker) - Single market details\nget_orderbook(ticker, depth) - Order book\nget_trades(ticker, limit, ...) - Public trades\nget_candlesticks(ticker, series_ticker, start, end) - OHLC price data\n\n\n\n\n\nget_series_list(category) - All series\nget_series(series_ticker) - Single series details\n\n\n\n\n\nget_events(status, series_ticker, ...) - List events\nget_event(event_ticker) - Single event details\nget_event_markets(event_ticker) - Markets for an event\n\n\n\n\n\nget_balance() - Account balance\nget_positions(ticker, ...) - Current positions\nget_orders(status, ...) - Order history\nget_fills(ticker, ...) - Trade fills\nget_settlements(ticker, ...) - Settlement history\n\n\n\n\n\ncreate_order(ticker, side, action, count, ...) - Place order\ncancel_order(order_id) - Cancel order\namend_order(order_id, count, price) - Modify order\ndecrease_order(order_id, reduce_by) - Reduce order size\nget_order(order_id) - Single order details\nbatch_create_orders(orders) - Create up to 20 orders\nbatch_cancel_orders(order_ids) - Cancel up to 20 orders\ncancel_all_orders(ticker) - Cancel all resting orders\n\n\n\n\n\nget_settled_markets(series_ticker, from, to) - Settled markets with date range\nget_settled_events(series_ticker) - Settled events\nget_series_history(series_ticker) - Full history for a series\nget_event_results(series_ticker, date) - Event outcomes (simplified date input)\nget_event_candlesticks(series_ticker, date) - Event OHLC data\nget_market_history(ticker, series_ticker) - Market candles + trades\nget_trade_history(ticker, ...) - Historical trades"
+  },
+  {
+    "objectID": "CLAUDE.html#usage-examples",
+    "href": "CLAUDE.html#usage-examples",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "library(kalshi)\n\n# First time: generate key pair\ngenerate_kalshi_keypair(\"kalshi-key.key\")\n# Upload public key to Kalshi dashboard, get Key ID\n\n# Add to .Renviron: KALSHI_API=your-key-id\nusethis::edit_r_environ()\n\n# Each session: set key path\nkalshi_auth_setup(\"kalshi-key.key\")\n\n\n\n# Get results for NYC temperature on a specific date\nresults &lt;- get_event_results(series_ticker = \"KXHIGHNY\", date = \"2026-02-07\")\n\n# See price evolution (hourly candles)\ncandles &lt;- get_candlesticks(\n  ticker = \"KXHIGHNY-26FEB07-B26.5\",\n  series_ticker = \"KXHIGHNY\",\n  start = \"2026-02-06\",\n  end = \"2026-02-08\",\n  period_interval = 60\n)\n\n# Get all historical results for a series\nhistory &lt;- get_series_history(\"KXHIGHNY\")\n\n\n\n# Place a limit order\norder &lt;- create_order(\n  ticker = \"KXHIGHNY-26FEB08-B26.5\",\n  side = \"yes\",\n  action = \"buy\",\n  count = 10,\n  yes_price = 45\n)\n\n# Cancel it\ncancel_order(order$order_id)"
+  },
+  {
+    "objectID": "CLAUDE.html#documentation",
+    "href": "CLAUDE.html#documentation",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "Built with qrtdown. Site at docs/index.html.\nqrtdown::build_site()\nqrtdown::preview_site()"
+  },
+  {
+    "objectID": "CLAUDE.html#testing",
+    "href": "CLAUDE.html#testing",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "devtools::check(remote = TRUE, manual = TRUE)"
+  },
+  {
+    "objectID": "CLAUDE.html#files-to-keep-private",
+    "href": "CLAUDE.html#files-to-keep-private",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "*.key - Private keys (in .gitignore)\n.Renviron - Contains API key ID (in .gitignore)"
+  },
+  {
+    "objectID": "CLAUDE.html#weather-series-examples",
+    "href": "CLAUDE.html#weather-series-examples",
+    "title": "Kalshi R Package",
+    "section": "",
+    "text": "KXHIGHNY - NYC high temperature\nKXHIGHLA - LA high temperature\nKXHIGHMIA - Miami high temperature\nKXHIGHCHI - Chicago high temperature"
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html",
+    "href": "vignettes/articles/authentication.html",
+    "title": "Authenticating with the Kalshi API",
+    "section": "",
+    "text": "The kalshi package uses a secure, “Pure R” approach to authentication. Instead of relying on external Python libraries, it interfaces directly with your system’s openssl tool to perform RSA-PSS signing."
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#prerequisite-openssl",
+    "href": "vignettes/articles/authentication.html#prerequisite-openssl",
+    "title": "Authenticating with the Kalshi API",
+    "section": "Prerequisite: OpenSSL",
+    "text": "Prerequisite: OpenSSL\nThis package requires the openssl command-line tool. Most Linux and macOS systems have this pre-installed. You can verify it by running:\n\nlibrary(kalshi)\ncheck_openssl_installed()"
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#first-time-setup-generating-keys",
+    "href": "vignettes/articles/authentication.html#first-time-setup-generating-keys",
+    "title": "Authenticating with the Kalshi API",
+    "section": "First-Time Setup: Generating Keys",
+    "text": "First-Time Setup: Generating Keys\nIf you do not already have an RSA key pair, generate one:\n\ngenerate_kalshi_keypair(\"kalshi-key.key\")\n\nThis creates a private .key file and displays the Public Key in your console.\n\nRegistering with Kalshi\n\nCopy the Public Key printed in your console.\nLog in to the Kalshi Developer Dashboard.\nClick “Create API Key” and paste your public key.\nSave the Key ID (a UUID) that Kalshi provides."
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#step-1-environment-variables",
+    "href": "vignettes/articles/authentication.html#step-1-environment-variables",
+    "title": "Authenticating with the Kalshi API",
+    "section": "Step 1: Environment Variables",
+    "text": "Step 1: Environment Variables\nAdd your Key ID to your .Renviron file:\n\nusethis::edit_r_environ()\n\nAdd this line:\nKALSHI_API=your-uuid-here\nSave and restart R."
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#step-2-session-setup",
+    "href": "vignettes/articles/authentication.html#step-2-session-setup",
+    "title": "Authenticating with the Kalshi API",
+    "section": "Step 2: Session Setup",
+    "text": "Step 2: Session Setup\nBefore making API calls, point the package to your private RSA key:\n\nkalshi_auth_setup(\"kalshi-key.key\")"
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#making-api-calls",
+    "href": "vignettes/articles/authentication.html#making-api-calls",
+    "title": "Authenticating with the Kalshi API",
+    "section": "Making API Calls",
+    "text": "Making API Calls\nOnce authenticated, you can call any function:\n\n# Get your account balance\nbal &lt;- get_balance()\ncat(\"Balance: $\", bal$balance / 100, \"\\n\")\n\n# Get market data\nmarkets &lt;- get_markets(status = \"open\", limit = 10)\n\n# Get series information\nseries &lt;- get_series_list(max_pages = 1)"
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#how-authentication-works",
+    "href": "vignettes/articles/authentication.html#how-authentication-works",
+    "title": "Authenticating with the Kalshi API",
+    "section": "How Authentication Works",
+    "text": "How Authentication Works\nWhen you call a function like get_markets(): 1. Validation: check_kalshi_auth() ensures you’ve run the setup. 2. Signing: A message (timestamp + method + path) is signed using RSA-PSS via the system openssl binary. 3. Request: httr2 attaches the signature and your Key ID to the headers."
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#security-considerations",
+    "href": "vignettes/articles/authentication.html#security-considerations",
+    "title": "Authenticating with the Kalshi API",
+    "section": "Security Considerations",
+    "text": "Security Considerations\n\nKey Safety: Your private key is never read into R memory; it is only accessed by the system OpenSSL tool.\nGit Safety: Ensure *.key and .Renviron are in your .gitignore."
+  },
+  {
+    "objectID": "vignettes/articles/authentication.html#troubleshooting",
+    "href": "vignettes/articles/authentication.html#troubleshooting",
+    "title": "Authenticating with the Kalshi API",
+    "section": "Troubleshooting",
+    "text": "Troubleshooting\nIf you see OpenSSL system call failed, verify the binary is available:\nwhich openssl\nopenssl version\nOn Ubuntu/Debian:\nsudo apt update && sudo apt install openssl\nOn macOS:\nbrew install openssl"
+  },
+  {
+    "objectID": "reference/req_kalshi_auth.html",
+    "href": "reference/req_kalshi_auth.html",
+    "title": "req_kalshi_auth",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/req_kalshi_auth.html#usage",
+    "href": "reference/req_kalshi_auth.html#usage",
+    "title": "req_kalshi_auth",
+    "section": "Usage",
+    "text": "Usage\nreq_kalshi_auth(req, kalshi_access_token = \"KALSHI_API\")"
+  },
+  {
+    "objectID": "reference/req_kalshi_auth.html#arguments",
+    "href": "reference/req_kalshi_auth.html#arguments",
+    "title": "req_kalshi_auth",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nreq\nAn ‘httr2’ request object.\n\n\nkalshi_access_token\nCharacter. The name of the environment variable containing your Kalshi Key ID. Defaults to ‘“KALSHI_API”’."
+  },
+  {
+    "objectID": "reference/req_kalshi_auth.html#value",
+    "href": "reference/req_kalshi_auth.html#value",
+    "title": "req_kalshi_auth",
+    "section": "Value",
+    "text": "Value\nA modified ‘httr2’ request object with authentication headers."
+  },
+  {
+    "objectID": "reference/req_kalshi_auth.html#description",
+    "href": "reference/req_kalshi_auth.html#description",
+    "title": "req_kalshi_auth",
+    "section": "Description",
+    "text": "Description\nImplements the Kalshi V2 API authentication protocol. Extracts metadata from an ‘httr2’ request, generates a SHA-256 RSA-PSS signature, and attaches the required headers."
+  },
+  {
+    "objectID": "reference/req_kalshi_auth.html#details",
+    "href": "reference/req_kalshi_auth.html#details",
+    "title": "req_kalshi_auth",
+    "section": "Details",
+    "text": "Details\nThe function signs the base path without query parameters, as required by Kalshi’s authentication scheme."
+  },
+  {
+    "objectID": "reference/kalshi_request.html",
+    "href": "reference/kalshi_request.html",
+    "title": "kalshi_request",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/kalshi_request.html#usage",
+    "href": "reference/kalshi_request.html#usage",
+    "title": "kalshi_request",
+    "section": "Usage",
+    "text": "Usage\nkalshi_request(\n  path,\n  method = \"GET\",\n  query = NULL,\n  body = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/kalshi_request.html#arguments",
+    "href": "reference/kalshi_request.html#arguments",
+    "title": "kalshi_request",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\npath\nCharacter. The API endpoint path (e.g., “/trade-api/v2/markets”).\n\n\nmethod\nCharacter. HTTP method. Defaults to “GET”.\n\n\nquery\nNamed list. Query parameters to append.\n\n\nbody\nList. Request body for POST/PUT requests.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/kalshi_request.html#value",
+    "href": "reference/kalshi_request.html#value",
+    "title": "kalshi_request",
+    "section": "Value",
+    "text": "Value\nAn httr2 request object ready to perform."
+  },
+  {
+    "objectID": "reference/kalshi_request.html#description",
+    "href": "reference/kalshi_request.html#description",
+    "title": "kalshi_request",
+    "section": "Description",
+    "text": "Description\nInternal helper to construct an authenticated httr2 request."
+  },
+  {
+    "objectID": "reference/kalshi_paginate.html",
+    "href": "reference/kalshi_paginate.html",
+    "title": "kalshi_paginate",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/kalshi_paginate.html#usage",
+    "href": "reference/kalshi_paginate.html#usage",
+    "title": "kalshi_paginate",
+    "section": "Usage",
+    "text": "Usage\nkalshi_paginate(\n  path,\n  result_key,\n  query = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE,\n  max_pages = NULL\n)"
+  },
+  {
+    "objectID": "reference/kalshi_paginate.html#arguments",
+    "href": "reference/kalshi_paginate.html#arguments",
+    "title": "kalshi_paginate",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\npath\nCharacter. The API endpoint path.\n\n\nresult_key\nCharacter. The key in the response containing results.\n\n\nquery\nNamed list. Additional query parameters.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE.\n\n\nmax_pages\nInteger. Maximum number of pages to fetch. NULL for all."
+  },
+  {
+    "objectID": "reference/kalshi_paginate.html#value",
+    "href": "reference/kalshi_paginate.html#value",
+    "title": "kalshi_paginate",
+    "section": "Value",
+    "text": "Value\nA list of all results across pages."
+  },
+  {
+    "objectID": "reference/kalshi_paginate.html#description",
+    "href": "reference/kalshi_paginate.html#description",
+    "title": "kalshi_paginate",
+    "section": "Description",
+    "text": "Description\nInternal helper to handle cursor-based pagination."
+  },
+  {
+    "objectID": "reference/kalshi_auth_setup.html",
+    "href": "reference/kalshi_auth_setup.html",
+    "title": "kalshi_auth_setup",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/kalshi_auth_setup.html#usage",
+    "href": "reference/kalshi_auth_setup.html#usage",
+    "title": "kalshi_auth_setup",
+    "section": "Usage",
+    "text": "Usage\nkalshi_auth_setup(path)"
+  },
+  {
+    "objectID": "reference/kalshi_auth_setup.html#arguments",
+    "href": "reference/kalshi_auth_setup.html#arguments",
+    "title": "kalshi_auth_setup",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\npath\nCharacter. The absolute or relative path to your ‘.key’ or ‘.pem’ file."
+  },
+  {
+    "objectID": "reference/kalshi_auth_setup.html#value",
+    "href": "reference/kalshi_auth_setup.html#value",
+    "title": "kalshi_auth_setup",
+    "section": "Value",
+    "text": "Value\nInvisibly returns the normalized path."
+  },
+  {
+    "objectID": "reference/kalshi_auth_setup.html#description",
+    "href": "reference/kalshi_auth_setup.html#description",
+    "title": "kalshi_auth_setup",
+    "section": "Description",
+    "text": "Description\nConfigures the session by pointing the package to your private RSA key. This path is stored in an internal environment and used automatically for all subsequent API requests."
+  },
+  {
+    "objectID": "reference/kalshi_auth_setup.html#examples",
+    "href": "reference/kalshi_auth_setup.html#examples",
+    "title": "kalshi_auth_setup",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nkalshi_auth_setup(\"path/to/your/kalshi-key.key\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_trade_history.html",
+    "href": "reference/get_trade_history.html",
+    "title": "get_trade_history",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_trade_history.html#usage",
+    "href": "reference/get_trade_history.html#usage",
+    "title": "get_trade_history",
+    "section": "Usage",
+    "text": "Usage\nget_trade_history(\n  ticker = NULL,\n  min_ts = NULL,\n  max_ts = NULL,\n  limit = 1000,\n  max_pages = 10,\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_trade_history.html#arguments",
+    "href": "reference/get_trade_history.html#arguments",
+    "title": "get_trade_history",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. Filter by market ticker. Optional.\n\n\nmin_ts\nInteger. Minimum timestamp (Unix ms).\n\n\nmax_ts\nInteger. Maximum timestamp (Unix ms).\n\n\nlimit\nInteger. Results per page (1-1000). Defaults to 1000.\n\n\nmax_pages\nInteger. Maximum pages to fetch. Defaults to 10.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_trade_history.html#value",
+    "href": "reference/get_trade_history.html#value",
+    "title": "get_trade_history",
+    "section": "Value",
+    "text": "Value\nA tibble with trade information."
+  },
+  {
+    "objectID": "reference/get_trade_history.html#description",
+    "href": "reference/get_trade_history.html#description",
+    "title": "get_trade_history",
+    "section": "Description",
+    "text": "Description\nRetrieves all historical trades for a market or across all markets."
+  },
+  {
+    "objectID": "reference/get_trade_history.html#examples",
+    "href": "reference/get_trade_history.html#examples",
+    "title": "get_trade_history",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get all trades for a market\ntrades &lt;- get_trade_history(ticker = \"KXHIGHNY-25FEB08-B54\")\n\n# Get recent trades across all markets\ntrades &lt;- get_trade_history(max_pages = 5)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_trade_history.html#see-also",
+    "href": "reference/get_trade_history.html#see-also",
+    "title": "get_trade_history",
+    "section": "See also",
+    "text": "See also\nOther history: get_event_candlesticks(), get_event_results(), get_market_history(), get_series_history(), get_settled_events(), get_settled_markets()"
+  },
+  {
+    "objectID": "reference/get_settled_markets.html",
+    "href": "reference/get_settled_markets.html",
+    "title": "get_settled_markets",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_settled_markets.html#usage",
+    "href": "reference/get_settled_markets.html#usage",
+    "title": "get_settled_markets",
+    "section": "Usage",
+    "text": "Usage\nget_settled_markets(\n  series_ticker = NULL,\n  event_ticker = NULL,\n  from = NULL,\n  to = NULL,\n  limit = 200,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_settled_markets.html#arguments",
+    "href": "reference/get_settled_markets.html#arguments",
+    "title": "get_settled_markets",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nseries_ticker\nCharacter. Filter by series ticker.\n\n\nevent_ticker\nCharacter. Filter by event ticker.\n\n\nfrom\nDate, character, or integer. Start of date range. Accepts “2026-01-01”, as.Date(), or Unix seconds.\n\n\nto\nDate, character, or integer. End of date range. Accepts “2026-02-07”, as.Date(), or Unix seconds.\n\n\nlimit\nInteger. Results per page (1-1000). Defaults to 200.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_settled_markets.html#value",
+    "href": "reference/get_settled_markets.html#value",
+    "title": "get_settled_markets",
+    "section": "Value",
+    "text": "Value\nA tibble with settled market information including results."
+  },
+  {
+    "objectID": "reference/get_settled_markets.html#description",
+    "href": "reference/get_settled_markets.html#description",
+    "title": "get_settled_markets",
+    "section": "Description",
+    "text": "Description\nRetrieves settled markets with optional date filtering. Useful for analyzing historical outcomes."
+  },
+  {
+    "objectID": "reference/get_settled_markets.html#examples",
+    "href": "reference/get_settled_markets.html#examples",
+    "title": "get_settled_markets",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get all settled markets for a series\nresults &lt;- get_settled_markets(series_ticker = \"KXHIGHNY\")\n\n# Get markets settled in a date range\nresults &lt;- get_settled_markets(\n  series_ticker = \"KXHIGHNY\",\n  from = \"2026-01-01\",\n  to = \"2026-02-01\"\n)\n\n# Get markets settled in the last 7 days\nresults &lt;- get_settled_markets(from = Sys.Date() - 7)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_settled_markets.html#see-also",
+    "href": "reference/get_settled_markets.html#see-also",
+    "title": "get_settled_markets",
+    "section": "See also",
+    "text": "See also\nOther history: get_event_candlesticks(), get_event_results(), get_market_history(), get_series_history(), get_settled_events(), get_trade_history()"
+  },
+  {
+    "objectID": "reference/get_series_list.html",
+    "href": "reference/get_series_list.html",
+    "title": "get_series_list",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_series_list.html#usage",
+    "href": "reference/get_series_list.html#usage",
+    "title": "get_series_list",
+    "section": "Usage",
+    "text": "Usage\nget_series_list(\n  category = NULL,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_series_list.html#arguments",
+    "href": "reference/get_series_list.html#arguments",
+    "title": "get_series_list",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ncategory\nCharacter. Filter by category.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_series_list.html#value",
+    "href": "reference/get_series_list.html#value",
+    "title": "get_series_list",
+    "section": "Value",
+    "text": "Value\nA tibble with series information including ticker, title, category, frequency, and settlement sources."
+  },
+  {
+    "objectID": "reference/get_series_list.html#description",
+    "href": "reference/get_series_list.html#description",
+    "title": "get_series_list",
+    "section": "Description",
+    "text": "Description\nRetrieves all available series templates. A series represents a recurring event format (e.g., “Daily High Temperature in NYC”)."
+  },
+  {
+    "objectID": "reference/get_series_list.html#examples",
+    "href": "reference/get_series_list.html#examples",
+    "title": "get_series_list",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nseries &lt;- get_series_list()\nhead(series)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_series_list.html#see-also",
+    "href": "reference/get_series_list.html#see-also",
+    "title": "get_series_list",
+    "section": "See also",
+    "text": "See also\nOther series: get_series()"
+  },
+  {
+    "objectID": "reference/get_series.html",
+    "href": "reference/get_series.html",
+    "title": "get_series",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_series.html#usage",
+    "href": "reference/get_series.html#usage",
+    "title": "get_series",
+    "section": "Usage",
+    "text": "Usage\nget_series(\n  series_ticker,\n  include_volume = FALSE,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_series.html#arguments",
+    "href": "reference/get_series.html#arguments",
+    "title": "get_series",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nseries_ticker\nCharacter. The series ticker (e.g., “KXHIGHNY”).\n\n\ninclude_volume\nLogical. Include volume data if TRUE.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_series.html#value",
+    "href": "reference/get_series.html#value",
+    "title": "get_series",
+    "section": "Value",
+    "text": "Value\nA list with complete series details."
+  },
+  {
+    "objectID": "reference/get_series.html#description",
+    "href": "reference/get_series.html#description",
+    "title": "get_series",
+    "section": "Description",
+    "text": "Description\nRetrieves detailed information for a specific series by ticker."
+  },
+  {
+    "objectID": "reference/get_series.html#examples",
+    "href": "reference/get_series.html#examples",
+    "title": "get_series",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nseries &lt;- get_series(\"KXHIGHNY\")\nseries$title\nseries$frequency\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_series.html#see-also",
+    "href": "reference/get_series.html#see-also",
+    "title": "get_series",
+    "section": "See also",
+    "text": "See also\nOther series: get_series_list()"
+  },
+  {
+    "objectID": "reference/get_orders.html",
+    "href": "reference/get_orders.html",
+    "title": "get_orders",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_orders.html#usage",
+    "href": "reference/get_orders.html#usage",
+    "title": "get_orders",
+    "section": "Usage",
+    "text": "Usage\nget_orders(\n  ticker = NULL,\n  event_ticker = NULL,\n  status = NULL,\n  limit = 100,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_orders.html#arguments",
+    "href": "reference/get_orders.html#arguments",
+    "title": "get_orders",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. Filter by specific market ticker.\n\n\nevent_ticker\nCharacter. Filter by event ticker.\n\n\nstatus\nCharacter. Filter by status: “resting”, “canceled”, “executed”.\n\n\nlimit\nInteger. Results per page (1-200). Defaults to 100.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_orders.html#value",
+    "href": "reference/get_orders.html#value",
+    "title": "get_orders",
+    "section": "Value",
+    "text": "Value\nA tibble with order information."
+  },
+  {
+    "objectID": "reference/get_orders.html#description",
+    "href": "reference/get_orders.html#description",
+    "title": "get_orders",
+    "section": "Description",
+    "text": "Description\nRetrieves your orders with optional filtering."
+  },
+  {
+    "objectID": "reference/get_orders.html#examples",
+    "href": "reference/get_orders.html#examples",
+    "title": "get_orders",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get all resting orders\norders &lt;- get_orders(status = \"resting\")\n\n# Get orders for specific market\norders &lt;- get_orders(ticker = \"KXHIGHNY-25FEB08-B54\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_orders.html#see-also",
+    "href": "reference/get_orders.html#see-also",
+    "title": "get_orders",
+    "section": "See also",
+    "text": "See also\nOther portfolio: get_balance(), get_fills(), get_positions(), get_settlements()"
+  },
+  {
+    "objectID": "reference/get_order.html",
+    "href": "reference/get_order.html",
+    "title": "get_order",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_order.html#usage",
+    "href": "reference/get_order.html#usage",
+    "title": "get_order",
+    "section": "Usage",
+    "text": "Usage\nget_order(order_id, kalshi_access_token = \"KALSHI_API\", demo = FALSE)"
+  },
+  {
+    "objectID": "reference/get_order.html#arguments",
+    "href": "reference/get_order.html#arguments",
+    "title": "get_order",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\norder_id\nCharacter. The order ID.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_order.html#value",
+    "href": "reference/get_order.html#value",
+    "title": "get_order",
+    "section": "Value",
+    "text": "Value\nA list with complete order details."
+  },
+  {
+    "objectID": "reference/get_order.html#description",
+    "href": "reference/get_order.html#description",
+    "title": "get_order",
+    "section": "Description",
+    "text": "Description\nRetrieves details for a specific order by ID."
+  },
+  {
+    "objectID": "reference/get_order.html#examples",
+    "href": "reference/get_order.html#examples",
+    "title": "get_order",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \norder &lt;- get_order(\"order-uuid\")\norder$status\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_order.html#see-also",
+    "href": "reference/get_order.html#see-also",
+    "title": "get_order",
+    "section": "See also",
+    "text": "See also\nOther trading: amend_order(), batch_cancel_orders(), batch_create_orders(), cancel_all_orders(), cancel_order(), create_order(), decrease_order()"
+  },
+  {
+    "objectID": "reference/get_market_history.html",
+    "href": "reference/get_market_history.html",
+    "title": "get_market_history",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_market_history.html#usage",
+    "href": "reference/get_market_history.html#usage",
+    "title": "get_market_history",
+    "section": "Usage",
+    "text": "Usage\nget_market_history(\n  ticker,\n  series_ticker = NULL,\n  include_candles = TRUE,\n  include_trades = TRUE,\n  period_interval = 60,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_market_history.html#arguments",
+    "href": "reference/get_market_history.html#arguments",
+    "title": "get_market_history",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. The market ticker.\n\n\nseries_ticker\nCharacter. The series ticker (required for candlesticks).\n\n\ninclude_candles\nLogical. Include candlestick data. Defaults to TRUE.\n\n\ninclude_trades\nLogical. Include trade data. Defaults to TRUE.\n\n\nperiod_interval\nInteger. Candle period in minutes: 1, 60, or 1440.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_market_history.html#value",
+    "href": "reference/get_market_history.html#value",
+    "title": "get_market_history",
+    "section": "Value",
+    "text": "Value\nA list with candles and trades tibbles."
+  },
+  {
+    "objectID": "reference/get_market_history.html#description",
+    "href": "reference/get_market_history.html#description",
+    "title": "get_market_history",
+    "section": "Description",
+    "text": "Description\nRetrieves historical trade and price data for a specific market. Combines candlestick data with trade information."
+  },
+  {
+    "objectID": "reference/get_market_history.html#examples",
+    "href": "reference/get_market_history.html#examples",
+    "title": "get_market_history",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nhistory &lt;- get_market_history(\n  ticker = \"KXHIGHNY-25FEB08-B54\",\n  series_ticker = \"KXHIGHNY\"\n)\nhistory$candles\nhistory$trades\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_market_history.html#see-also",
+    "href": "reference/get_market_history.html#see-also",
+    "title": "get_market_history",
+    "section": "See also",
+    "text": "See also\nOther history: get_event_candlesticks(), get_event_results(), get_series_history(), get_settled_events(), get_settled_markets(), get_trade_history()"
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html",
+    "href": "reference/get_kalshi_access_token.html",
+    "title": "get_kalshi_access_token",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html#usage",
+    "href": "reference/get_kalshi_access_token.html#usage",
+    "title": "get_kalshi_access_token",
+    "section": "Usage",
+    "text": "Usage\nget_kalshi_access_token(kalshi_access_token = \"KALSHI_API\")"
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html#arguments",
+    "href": "reference/get_kalshi_access_token.html#arguments",
+    "title": "get_kalshi_access_token",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nkalshi_access_token\nCharacter. The name of the environment variable where your Kalshi API Key ID is stored. Defaults to ‘“KALSHI_API”’."
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html#value",
+    "href": "reference/get_kalshi_access_token.html#value",
+    "title": "get_kalshi_access_token",
+    "section": "Value",
+    "text": "Value\nReturns the API Key ID string."
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html#description",
+    "href": "reference/get_kalshi_access_token.html#description",
+    "title": "get_kalshi_access_token",
+    "section": "Description",
+    "text": "Description\nRetrieves a stored Kalshi API Key ID from the system environment. If not found, prompts the user to edit their ‘.Renviron’ file."
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html#details",
+    "href": "reference/get_kalshi_access_token.html#details",
+    "title": "get_kalshi_access_token",
+    "section": "Details",
+    "text": "Details\nStoring API keys in your ‘.Renviron’ file is a best practice to avoid hard-coding secrets into your scripts.\nTo set your key: 1. Run ‘usethis::edit_r_environ()’ 2. Add a line: ‘KALSHI_API=your_key_id_here’ 3. Save and restart R."
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html#examples",
+    "href": "reference/get_kalshi_access_token.html#examples",
+    "title": "get_kalshi_access_token",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nkey_id &lt;- get_kalshi_access_token()\nkey_id &lt;- get_kalshi_access_token(\"MY_PROD_KEY\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_kalshi_access_token.html#see-also",
+    "href": "reference/get_kalshi_access_token.html#see-also",
+    "title": "get_kalshi_access_token",
+    "section": "See also",
+    "text": "See also\nOther authentication: check_openssl_installed(), generate_kalshi_keypair()"
+  },
+  {
+    "objectID": "reference/get_exchange_status.html",
+    "href": "reference/get_exchange_status.html",
+    "title": "get_exchange_status",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_exchange_status.html#usage",
+    "href": "reference/get_exchange_status.html#usage",
+    "title": "get_exchange_status",
+    "section": "Usage",
+    "text": "Usage\nget_exchange_status(demo = FALSE)"
+  },
+  {
+    "objectID": "reference/get_exchange_status.html#arguments",
+    "href": "reference/get_exchange_status.html#arguments",
+    "title": "get_exchange_status",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\nArgument\nDescription\n\n\n\n\ndemo\nLogical. Use demo environment if TRUE. Defaults to FALSE."
+  },
+  {
+    "objectID": "reference/get_exchange_status.html#value",
+    "href": "reference/get_exchange_status.html#value",
+    "title": "get_exchange_status",
+    "section": "Value",
+    "text": "Value\nA list with exchange status information:\n\nexchange_active: Whether the exchange is operational\ntrading_active: Whether trading is currently enabled"
+  },
+  {
+    "objectID": "reference/get_exchange_status.html#description",
+    "href": "reference/get_exchange_status.html#description",
+    "title": "get_exchange_status",
+    "section": "Description",
+    "text": "Description\nRetrieves the current operational status of the Kalshi exchange."
+  },
+  {
+    "objectID": "reference/get_exchange_status.html#examples",
+    "href": "reference/get_exchange_status.html#examples",
+    "title": "get_exchange_status",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nstatus &lt;- get_exchange_status()\nstatus$trading_active\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_event_results.html",
+    "href": "reference/get_event_results.html",
+    "title": "get_event_results",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_event_results.html#usage",
+    "href": "reference/get_event_results.html#usage",
+    "title": "get_event_results",
+    "section": "Usage",
+    "text": "Usage\nget_event_results(\n  event_ticker = NULL,\n  series_ticker = NULL,\n  date = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_event_results.html#arguments",
+    "href": "reference/get_event_results.html#arguments",
+    "title": "get_event_results",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nevent_ticker\nCharacter. The event ticker (e.g., “KXHIGHNY-26FEB07”). If NULL, series_ticker and date must be provided.\n\n\nseries_ticker\nCharacter. The series ticker (e.g., “KXHIGHNY”). Used with date parameter.\n\n\ndate\nDate or character. The event date (e.g., “2026-02-07” or as.Date()). Used with series_ticker parameter.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_event_results.html#value",
+    "href": "reference/get_event_results.html#value",
+    "title": "get_event_results",
+    "section": "Value",
+    "text": "Value\nA tibble with market results for the event."
+  },
+  {
+    "objectID": "reference/get_event_results.html#description",
+    "href": "reference/get_event_results.html#description",
+    "title": "get_event_results",
+    "section": "Description",
+    "text": "Description\nRetrieves all markets and their outcomes for a specific event. Accepts either a full event ticker or a series ticker with a date."
+  },
+  {
+    "objectID": "reference/get_event_results.html#examples",
+    "href": "reference/get_event_results.html#examples",
+    "title": "get_event_results",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Using full event ticker\nresults &lt;- get_event_results(\"KXHIGHNY-26FEB07\")\n\n# Using series + date (simpler)\nresults &lt;- get_event_results(series_ticker = \"KXHIGHNY\", date = \"2026-02-07\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_event_results.html#see-also",
+    "href": "reference/get_event_results.html#see-also",
+    "title": "get_event_results",
+    "section": "See also",
+    "text": "See also\nOther history: get_event_candlesticks(), get_market_history(), get_series_history(), get_settled_events(), get_settled_markets(), get_trade_history()"
+  },
+  {
+    "objectID": "reference/get_event_candlesticks.html",
+    "href": "reference/get_event_candlesticks.html",
+    "title": "get_event_candlesticks",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_event_candlesticks.html#usage",
+    "href": "reference/get_event_candlesticks.html#usage",
+    "title": "get_event_candlesticks",
+    "section": "Usage",
+    "text": "Usage\nget_event_candlesticks(\n  event_ticker = NULL,\n  series_ticker,\n  date = NULL,\n  period_interval = 60,\n  start = NULL,\n  end = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_event_candlesticks.html#arguments",
+    "href": "reference/get_event_candlesticks.html#arguments",
+    "title": "get_event_candlesticks",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nevent_ticker\nCharacter. The event ticker. If NULL, use series_ticker + date.\n\n\nseries_ticker\nCharacter. The series ticker.\n\n\ndate\nDate or character. The event date (used if event_ticker is NULL).\n\n\nperiod_interval\nInteger. Candle period in minutes: 1, 60, or 1440.\n\n\nstart\nDate, character, or integer. Start date/timestamp.\n\n\nend\nDate, character, or integer. End date/timestamp.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_event_candlesticks.html#value",
+    "href": "reference/get_event_candlesticks.html#value",
+    "title": "get_event_candlesticks",
+    "section": "Value",
+    "text": "Value\nA tibble with OHLC data."
+  },
+  {
+    "objectID": "reference/get_event_candlesticks.html#description",
+    "href": "reference/get_event_candlesticks.html#description",
+    "title": "get_event_candlesticks",
+    "section": "Description",
+    "text": "Description\nRetrieves aggregated historical OHLC data across all markets in an event."
+  },
+  {
+    "objectID": "reference/get_event_candlesticks.html#examples",
+    "href": "reference/get_event_candlesticks.html#examples",
+    "title": "get_event_candlesticks",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Using series + date\ncandles &lt;- get_event_candlesticks(\n  series_ticker = \"KXHIGHNY\",\n  date = \"2026-02-07\",\n  period_interval = 60\n)\n\n# Using full event ticker\ncandles &lt;- get_event_candlesticks(\n  event_ticker = \"KXHIGHNY-26FEB07\",\n  series_ticker = \"KXHIGHNY\"\n)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_event_candlesticks.html#see-also",
+    "href": "reference/get_event_candlesticks.html#see-also",
+    "title": "get_event_candlesticks",
+    "section": "See also",
+    "text": "See also\nOther history: get_event_results(), get_market_history(), get_series_history(), get_settled_events(), get_settled_markets(), get_trade_history()"
+  },
+  {
+    "objectID": "reference/get_candlesticks.html",
+    "href": "reference/get_candlesticks.html",
+    "title": "get_candlesticks",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_candlesticks.html#usage",
+    "href": "reference/get_candlesticks.html#usage",
+    "title": "get_candlesticks",
+    "section": "Usage",
+    "text": "Usage\nget_candlesticks(\n  ticker,\n  series_ticker,\n  period_interval = 60,\n  start = NULL,\n  end = NULL,\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_candlesticks.html#arguments",
+    "href": "reference/get_candlesticks.html#arguments",
+    "title": "get_candlesticks",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. The market ticker.\n\n\nseries_ticker\nCharacter. The series ticker for this market.\n\n\nperiod_interval\nInteger. Candle period in minutes: 1, 60, or 1440.\n\n\nstart\nDate, character, or integer. Start date/timestamp. Accepts “2026-02-01”, as.Date(), or Unix seconds. Defaults to 30 days ago.\n\n\nend\nDate, character, or integer. End date/timestamp. Accepts “2026-02-07”, as.Date(), or Unix seconds. Defaults to now.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_candlesticks.html#value",
+    "href": "reference/get_candlesticks.html#value",
+    "title": "get_candlesticks",
+    "section": "Value",
+    "text": "Value\nA tibble with OHLC data: time, open, high, low, close, volume."
+  },
+  {
+    "objectID": "reference/get_candlesticks.html#description",
+    "href": "reference/get_candlesticks.html#description",
+    "title": "get_candlesticks",
+    "section": "Description",
+    "text": "Description\nRetrieves historical OHLC price data for a specific market."
+  },
+  {
+    "objectID": "reference/get_candlesticks.html#examples",
+    "href": "reference/get_candlesticks.html#examples",
+    "title": "get_candlesticks",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Using dates (simple)\ncandles &lt;- get_candlesticks(\n  ticker = \"KXHIGHNY-26FEB07-B26.5\",\n  series_ticker = \"KXHIGHNY\",\n  start = \"2026-02-06\",\n  end = \"2026-02-08\"\n)\n\n# Using period interval\ncandles &lt;- get_candlesticks(\n  ticker = \"KXHIGHNY-26FEB07-B26.5\",\n  series_ticker = \"KXHIGHNY\",\n  period_interval = 1  # 1-minute candles\n)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_candlesticks.html#see-also",
+    "href": "reference/get_candlesticks.html#see-also",
+    "title": "get_candlesticks",
+    "section": "See also",
+    "text": "See also\nOther markets: get_market(), get_markets(), get_orderbook(), get_trades()"
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html",
+    "href": "reference/generate_kalshi_keypair.html",
+    "title": "generate_kalshi_keypair",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html#usage",
+    "href": "reference/generate_kalshi_keypair.html#usage",
+    "title": "generate_kalshi_keypair",
+    "section": "Usage",
+    "text": "Usage\ngenerate_kalshi_keypair(private_key_path = \"kalshi-key.key\")"
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html#arguments",
+    "href": "reference/generate_kalshi_keypair.html#arguments",
+    "title": "generate_kalshi_keypair",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nprivate_key_path\nCharacter. The file path where the private key should be saved. Defaults to ‘“kalshi-key.key”’."
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html#value",
+    "href": "reference/generate_kalshi_keypair.html#value",
+    "title": "generate_kalshi_keypair",
+    "section": "Value",
+    "text": "Value\nReturns the public key PEM string invisibly."
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html#description",
+    "href": "reference/generate_kalshi_keypair.html#description",
+    "title": "generate_kalshi_keypair",
+    "section": "Description",
+    "text": "Description\nGenerates a 2048-bit RSA key pair required for Kalshi’s V2 API authentication. Saves the private key to a local file and prints the public key to the console for uploading to the Kalshi Developer Dashboard."
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html#details",
+    "href": "reference/generate_kalshi_keypair.html#details",
+    "title": "generate_kalshi_keypair",
+    "section": "Details",
+    "text": "Details\nKalshi uses RSA-PSS signing for API requests. To use the API, you must: 1. Generate a key pair using this function. 2. Keep the ‘.key’ file secure (add it to your ‘.gitignore’). 3. Copy the public key text printed in the console. 4. Log into the Kalshi Dashboard and upload the public key to receive your Key ID."
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html#examples",
+    "href": "reference/generate_kalshi_keypair.html#examples",
+    "title": "generate_kalshi_keypair",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \ngenerate_kalshi_keypair(\"my_kalshi_key.key\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/generate_kalshi_keypair.html#see-also",
+    "href": "reference/generate_kalshi_keypair.html#see-also",
+    "title": "generate_kalshi_keypair",
+    "section": "See also",
+    "text": "See also\nOther authentication: check_openssl_installed(), get_kalshi_access_token()"
+  },
+  {
+    "objectID": "reference/create_order.html",
+    "href": "reference/create_order.html",
+    "title": "create_order",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/create_order.html#usage",
+    "href": "reference/create_order.html#usage",
+    "title": "create_order",
+    "section": "Usage",
+    "text": "Usage\ncreate_order(\n  ticker,\n  side,\n  action,\n  count,\n  type = \"limit\",\n  yes_price = NULL,\n  no_price = NULL,\n  expiration_ts = NULL,\n  sell_position_floor = NULL,\n  buy_max_cost = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/create_order.html#arguments",
+    "href": "reference/create_order.html#arguments",
+    "title": "create_order",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. The market ticker.\n\n\nside\nCharacter. Order side: “yes” or “no”.\n\n\naction\nCharacter. Order action: “buy” or “sell”.\n\n\ncount\nInteger. Number of contracts.\n\n\ntype\nCharacter. Order type: “limit” or “market”. Defaults to “limit”.\n\n\nyes_price\nInteger. Price in cents (1-99) for yes contracts. Required for limit orders.\n\n\nno_price\nInteger. Price in cents (1-99) for no contracts. Alternative to yes_price.\n\n\nexpiration_ts\nInteger. Unix timestamp for order expiration. Optional.\n\n\nsell_position_floor\nInteger. Minimum position to maintain when selling. Optional.\n\n\nbuy_max_cost\nInteger. Maximum cost in cents for buy orders. Optional.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/create_order.html#value",
+    "href": "reference/create_order.html#value",
+    "title": "create_order",
+    "section": "Value",
+    "text": "Value\nA list with order details including order_id."
+  },
+  {
+    "objectID": "reference/create_order.html#description",
+    "href": "reference/create_order.html#description",
+    "title": "create_order",
+    "section": "Description",
+    "text": "Description\nCreates a new order in a market. Orders can be limit or market orders, for either yes or no contracts."
+  },
+  {
+    "objectID": "reference/create_order.html#examples",
+    "href": "reference/create_order.html#examples",
+    "title": "create_order",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Buy 10 yes contracts at 45 cents\norder &lt;- create_order(\n  ticker = \"KXHIGHNY-25FEB08-B54\",\n  side = \"yes\",\n  action = \"buy\",\n  count = 10,\n  yes_price = 45\n)\n\n# Sell 5 no contracts at 60 cents\norder &lt;- create_order(\n  ticker = \"KXHIGHNY-25FEB08-B54\",\n  side = \"no\",\n  action = \"sell\",\n  count = 5,\n  no_price = 60\n)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/create_order.html#see-also",
+    "href": "reference/create_order.html#see-also",
+    "title": "create_order",
+    "section": "See also",
+    "text": "See also\nOther trading: amend_order(), batch_cancel_orders(), batch_create_orders(), cancel_all_orders(), cancel_order(), decrease_order(), get_order()"
+  },
+  {
+    "objectID": "reference/check_kalshi_auth.html",
+    "href": "reference/check_kalshi_auth.html",
+    "title": "check_kalshi_auth",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/check_kalshi_auth.html#usage",
+    "href": "reference/check_kalshi_auth.html#usage",
+    "title": "check_kalshi_auth",
+    "section": "Usage",
+    "text": "Usage\ncheck_kalshi_auth()"
+  },
+  {
+    "objectID": "reference/check_kalshi_auth.html#value",
+    "href": "reference/check_kalshi_auth.html#value",
+    "title": "check_kalshi_auth",
+    "section": "Value",
+    "text": "Value\nReturns the key path if found; otherwise, throws an error."
+  },
+  {
+    "objectID": "reference/check_kalshi_auth.html#description",
+    "href": "reference/check_kalshi_auth.html#description",
+    "title": "check_kalshi_auth",
+    "section": "Description",
+    "text": "Description\nInternal check to ensure the user has run ‘kalshi_auth_setup()’ before attempting an authenticated API call."
+  },
+  {
+    "objectID": "reference/cancel_all_orders.html",
+    "href": "reference/cancel_all_orders.html",
+    "title": "cancel_all_orders",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/cancel_all_orders.html#usage",
+    "href": "reference/cancel_all_orders.html#usage",
+    "title": "cancel_all_orders",
+    "section": "Usage",
+    "text": "Usage\ncancel_all_orders(\n  ticker = NULL,\n  event_ticker = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/cancel_all_orders.html#arguments",
+    "href": "reference/cancel_all_orders.html#arguments",
+    "title": "cancel_all_orders",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. Cancel only orders for this market ticker. Optional.\n\n\nevent_ticker\nCharacter. Cancel only orders for this event. Optional.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/cancel_all_orders.html#value",
+    "href": "reference/cancel_all_orders.html#value",
+    "title": "cancel_all_orders",
+    "section": "Value",
+    "text": "Value\nA tibble with cancelled orders."
+  },
+  {
+    "objectID": "reference/cancel_all_orders.html#description",
+    "href": "reference/cancel_all_orders.html#description",
+    "title": "cancel_all_orders",
+    "section": "Description",
+    "text": "Description\nCancels all resting orders, optionally filtered by market or event."
+  },
+  {
+    "objectID": "reference/cancel_all_orders.html#examples",
+    "href": "reference/cancel_all_orders.html#examples",
+    "title": "cancel_all_orders",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Cancel all resting orders\ncancel_all_orders()\n\n# Cancel orders for specific market\ncancel_all_orders(ticker = \"KXHIGHNY-25FEB08-B54\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/cancel_all_orders.html#see-also",
+    "href": "reference/cancel_all_orders.html#see-also",
+    "title": "cancel_all_orders",
+    "section": "See also",
+    "text": "See also\nOther trading: amend_order(), batch_cancel_orders(), batch_create_orders(), cancel_order(), create_order(), decrease_order(), get_order()"
+  },
+  {
+    "objectID": "reference/batch_create_orders.html",
+    "href": "reference/batch_create_orders.html",
+    "title": "batch_create_orders",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/batch_create_orders.html#usage",
+    "href": "reference/batch_create_orders.html#usage",
+    "title": "batch_create_orders",
+    "section": "Usage",
+    "text": "Usage\nbatch_create_orders(orders, kalshi_access_token = \"KALSHI_API\", demo = FALSE)"
+  },
+  {
+    "objectID": "reference/batch_create_orders.html#arguments",
+    "href": "reference/batch_create_orders.html#arguments",
+    "title": "batch_create_orders",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\norders\nList of order specifications. Each order should be a list with: ticker, side, action, count, type, and optionally yes_price/no_price.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/batch_create_orders.html#value",
+    "href": "reference/batch_create_orders.html#value",
+    "title": "batch_create_orders",
+    "section": "Value",
+    "text": "Value\nA list with created orders and any errors."
+  },
+  {
+    "objectID": "reference/batch_create_orders.html#description",
+    "href": "reference/batch_create_orders.html#description",
+    "title": "batch_create_orders",
+    "section": "Description",
+    "text": "Description\nCreates multiple orders in a single request. Limited to 20 orders per batch."
+  },
+  {
+    "objectID": "reference/batch_create_orders.html#examples",
+    "href": "reference/batch_create_orders.html#examples",
+    "title": "batch_create_orders",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \norders &lt;- list(\n  list(\n    ticker = \"MARKET1\", side = \"yes\", action = \"buy\",\n    count = 10, type = \"limit\", yes_price = 45\n  ),\n  list(\n    ticker = \"MARKET2\", side = \"no\", action = \"buy\",\n    count = 5, type = \"limit\", no_price = 30\n  )\n)\nresult &lt;- batch_create_orders(orders)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/batch_create_orders.html#see-also",
+    "href": "reference/batch_create_orders.html#see-also",
+    "title": "batch_create_orders",
+    "section": "See also",
+    "text": "See also\nOther trading: amend_order(), batch_cancel_orders(), cancel_all_orders(), cancel_order(), create_order(), decrease_order(), get_order()"
+  },
+  {
+    "objectID": "reference/amend_order.html",
+    "href": "reference/amend_order.html",
+    "title": "amend_order",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/amend_order.html#usage",
+    "href": "reference/amend_order.html#usage",
+    "title": "amend_order",
+    "section": "Usage",
+    "text": "Usage\namend_order(\n  order_id,\n  count = NULL,\n  yes_price = NULL,\n  no_price = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/amend_order.html#arguments",
+    "href": "reference/amend_order.html#arguments",
+    "title": "amend_order",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\norder_id\nCharacter. The order ID to amend.\n\n\ncount\nInteger. New total contract count. Optional.\n\n\nyes_price\nInteger. New yes price in cents. Optional.\n\n\nno_price\nInteger. New no price in cents. Optional.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/amend_order.html#value",
+    "href": "reference/amend_order.html#value",
+    "title": "amend_order",
+    "section": "Value",
+    "text": "Value\nA list with the amended order details."
+  },
+  {
+    "objectID": "reference/amend_order.html#description",
+    "href": "reference/amend_order.html#description",
+    "title": "amend_order",
+    "section": "Description",
+    "text": "Description\nAmends an existing resting order’s price and/or quantity."
+  },
+  {
+    "objectID": "reference/amend_order.html#examples",
+    "href": "reference/amend_order.html#examples",
+    "title": "amend_order",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Change price to 50 cents\namend_order(\"order-uuid\", yes_price = 50)\n\n# Change quantity to 20 contracts\namend_order(\"order-uuid\", count = 20)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/amend_order.html#see-also",
+    "href": "reference/amend_order.html#see-also",
+    "title": "amend_order",
+    "section": "See also",
+    "text": "See also\nOther trading: batch_cancel_orders(), batch_create_orders(), cancel_all_orders(), cancel_order(), create_order(), decrease_order(), get_order()"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "kalshi",
+    "section": "",
+    "text": "MIT + file LICENSE\n\n\n\nCiting this package\n\n\n\n\nAlejandro Hagan (author, maintainer)\nR client for the Kalshi prediction market API."
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "kalshi",
+    "section": "Installation",
+    "text": "Installation\n# From source\ndevtools::install()"
+  },
+  {
+    "objectID": "index.html#quick-start",
+    "href": "index.html#quick-start",
+    "title": "kalshi",
+    "section": "Quick Start",
+    "text": "Quick Start\nlibrary(kalshi)\n# Setup authentication (see Authentication section)\nkalshi_auth_setup(\"kalshi-key.key\")\n\n# Check balance\nget_balance()\n\n# Get open markets\nget_markets(status = \"open\", limit = 10)\n\n# Get weather event results\nget_event_results(series_ticker = \"KXHIGHNY\", date = \"2026-02-07\")\n\n# Track price evolution\nget_candlesticks(\n  ticker = \"KXHIGHNY-26FEB07-B26.5\",\n  series_ticker = \"KXHIGHNY\",\n  start = \"2026-02-06\",\n  end = \"2026-02-08\"\n)"
+  },
+  {
+    "objectID": "index.html#authentication",
+    "href": "index.html#authentication",
+    "title": "kalshi",
+    "section": "Authentication",
+    "text": "Authentication\n\nGenerate key pair:\ngenerate_kalshi_keypair(\"kalshi-key.key\")\nUpload public key to Kalshi API Keys\nAdd Key ID to .Renviron:\nKALSHI_API=your-key-id-here\nEach session:\nkalshi_auth_setup(\"kalshi-key.key\")"
+  },
+  {
+    "objectID": "index.html#features",
+    "href": "index.html#features",
+    "title": "kalshi",
+    "section": "Features",
+    "text": "Features\n\nMarket Data: Browse markets, series, events, orderbooks\nHistorical Analysis: Price history, settled markets, candlesticks\nPortfolio: Balance, positions, orders, fills, settlements\nTrading: Create, cancel, amend orders (single and batch)\nSimplified Dates: Use \"2026-02-07\" instead of Unix timestamps"
+  },
+  {
+    "objectID": "index.html#documentation",
+    "href": "index.html#documentation",
+    "title": "kalshi",
+    "section": "Documentation",
+    "text": "Documentation\nqrtdown::preview_site()\nOr see the docs/ folder."
+  },
+  {
+    "objectID": "index.html#license-1",
+    "href": "index.html#license-1",
+    "title": "kalshi",
+    "section": "License",
+    "text": "License\nMIT"
+  },
+  {
+    "objectID": "articles.html",
+    "href": "articles.html",
+    "title": "Articles",
+    "section": "",
+    "text": "kalshi Articles\nIn-depth guides and tutorials for using the package.\n\nAuthenticating with the Kalshi API\nGetting Started with kalshi"
+  },
+  {
+    "objectID": "reference.html",
+    "href": "reference.html",
+    "title": "Function reference",
+    "section": "",
+    "text": "All functions and classes exported by kalshi."
+  },
+  {
+    "objectID": "reference.html#functions",
+    "href": "reference.html#functions",
+    "title": "Function reference",
+    "section": "Functions",
+    "text": "Functions\n\n\n\nFunction\nDescription\n\n\n\n\namend_order()\nAmend Order\n\n\nbatch_cancel_orders()\nBatch Cancel Orders\n\n\nbatch_create_orders()\nBatch Create Orders\n\n\nbuild_event_ticker()\nBuild Event Ticker from Series and Date\n\n\ncancel_all_orders()\nCancel All Orders\n\n\ncancel_order()\nCancel Order\n\n\ncheck_kalshi_auth()\nValidate Kalshi Authentication Setup\n\n\ncheck_openssl_installed()\nCheck for OpenSSL System Dependency\n\n\ncreate_order()\nCreate Order\n\n\ndecrease_order()\nDecrease Order\n\n\ngenerate_kalshi_keypair()\nGenerate an RSA Key Pair for Kalshi API Authentication\n\n\nget_balance()\nGet Account Balance\n\n\nget_candlesticks()\nGet Market Candlesticks\n\n\nget_event()\nGet Single Event\n\n\nget_event_candlesticks()\nGet Event Candlesticks\n\n\nget_event_markets()\nGet Event Markets\n\n\nget_event_results()\nGet Event Results\n\n\nget_events()\nGet Events\n\n\nget_exchange_status()\nGet Exchange Status\n\n\nget_fills()\nGet Fills\n\n\nget_kalshi_access_token()\nRetrieve Kalshi Access Token from Environment\n\n\nget_market()\nGet Single Market\n\n\nget_market_history()\nGet Market History\n\n\nget_markets()\nGet Markets\n\n\nget_order()\nGet Single Order\n\n\nget_orderbook()\nGet Market Orderbook\n\n\nget_orders()\nGet Orders\n\n\nget_positions()\nGet Positions\n\n\nget_series()\nGet Single Series\n\n\nget_series_history()\nGet Series History\n\n\nget_series_list()\nGet Series List\n\n\nget_settled_events()\nGet Settled Events\n\n\nget_settled_markets()\nGet Settled Markets\n\n\nget_settlements()\nGet Settlements\n\n\nget_trade_history()\nGet Trade History\n\n\nget_trades()\nGet Market Trades\n\n\nkalshi_auth_setup()\nSet up Kalshi Authentication\n\n\nkalshi_base_url()\nGet Kalshi Base URL\n\n\nkalshi_paginate()\nPaginate Through Kalshi API Results\n\n\nkalshi_perform()\nPerform a Kalshi API Request\n\n\nkalshi_request()\nBuild a Kalshi API Request\n\n\nparse_timestamp()\nParse Date Input to Unix Timestamp\n\n\nreq_kalshi_auth()\nAuthenticate a Kalshi API Request\n\n\nsign_kalshi_request()\nInternal RSA-PSS Signing via OpenSSL System Call"
+  },
+  {
+    "objectID": "reference/batch_cancel_orders.html",
+    "href": "reference/batch_cancel_orders.html",
+    "title": "batch_cancel_orders",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/batch_cancel_orders.html#usage",
+    "href": "reference/batch_cancel_orders.html#usage",
+    "title": "batch_cancel_orders",
+    "section": "Usage",
+    "text": "Usage\nbatch_cancel_orders(\n  order_ids,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/batch_cancel_orders.html#arguments",
+    "href": "reference/batch_cancel_orders.html#arguments",
+    "title": "batch_cancel_orders",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\norder_ids\nCharacter vector. Order IDs to cancel.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/batch_cancel_orders.html#value",
+    "href": "reference/batch_cancel_orders.html#value",
+    "title": "batch_cancel_orders",
+    "section": "Value",
+    "text": "Value\nA list with cancelled orders and any errors."
+  },
+  {
+    "objectID": "reference/batch_cancel_orders.html#description",
+    "href": "reference/batch_cancel_orders.html#description",
+    "title": "batch_cancel_orders",
+    "section": "Description",
+    "text": "Description\nCancels multiple orders in a single request. Limited to 20 orders per batch."
+  },
+  {
+    "objectID": "reference/batch_cancel_orders.html#examples",
+    "href": "reference/batch_cancel_orders.html#examples",
+    "title": "batch_cancel_orders",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nresult &lt;- batch_cancel_orders(c(\"order-1\", \"order-2\", \"order-3\"))\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/batch_cancel_orders.html#see-also",
+    "href": "reference/batch_cancel_orders.html#see-also",
+    "title": "batch_cancel_orders",
+    "section": "See also",
+    "text": "See also\nOther trading: amend_order(), batch_create_orders(), cancel_all_orders(), cancel_order(), create_order(), decrease_order(), get_order()"
+  },
+  {
+    "objectID": "reference/build_event_ticker.html",
+    "href": "reference/build_event_ticker.html",
+    "title": "build_event_ticker",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/build_event_ticker.html#usage",
+    "href": "reference/build_event_ticker.html#usage",
+    "title": "build_event_ticker",
+    "section": "Usage",
+    "text": "Usage\nbuild_event_ticker(series_ticker, date)"
+  },
+  {
+    "objectID": "reference/build_event_ticker.html#arguments",
+    "href": "reference/build_event_ticker.html#arguments",
+    "title": "build_event_ticker",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\nArgument\nDescription\n\n\n\n\nseries_ticker\nCharacter. The series ticker.\n\n\ndate\nDate, character, or POSIXt. The event date."
+  },
+  {
+    "objectID": "reference/build_event_ticker.html#value",
+    "href": "reference/build_event_ticker.html#value",
+    "title": "build_event_ticker",
+    "section": "Value",
+    "text": "Value\nCharacter. The constructed event ticker."
+  },
+  {
+    "objectID": "reference/build_event_ticker.html#description",
+    "href": "reference/build_event_ticker.html#description",
+    "title": "build_event_ticker",
+    "section": "Description",
+    "text": "Description\nConstructs a Kalshi event ticker from a series ticker and date. Format: SERIES-YYMMMDD (e.g., KXHIGHNY-26FEB07)"
+  },
+  {
+    "objectID": "reference/cancel_order.html",
+    "href": "reference/cancel_order.html",
+    "title": "cancel_order",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/cancel_order.html#usage",
+    "href": "reference/cancel_order.html#usage",
+    "title": "cancel_order",
+    "section": "Usage",
+    "text": "Usage\ncancel_order(order_id, kalshi_access_token = \"KALSHI_API\", demo = FALSE)"
+  },
+  {
+    "objectID": "reference/cancel_order.html#arguments",
+    "href": "reference/cancel_order.html#arguments",
+    "title": "cancel_order",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\norder_id\nCharacter. The order ID to cancel.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/cancel_order.html#value",
+    "href": "reference/cancel_order.html#value",
+    "title": "cancel_order",
+    "section": "Value",
+    "text": "Value\nA list with the cancelled order details."
+  },
+  {
+    "objectID": "reference/cancel_order.html#description",
+    "href": "reference/cancel_order.html#description",
+    "title": "cancel_order",
+    "section": "Description",
+    "text": "Description\nCancels an existing resting order by order ID."
+  },
+  {
+    "objectID": "reference/cancel_order.html#examples",
+    "href": "reference/cancel_order.html#examples",
+    "title": "cancel_order",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \ncancel_order(\"order-uuid-here\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/cancel_order.html#see-also",
+    "href": "reference/cancel_order.html#see-also",
+    "title": "cancel_order",
+    "section": "See also",
+    "text": "See also\nOther trading: amend_order(), batch_cancel_orders(), batch_create_orders(), cancel_all_orders(), create_order(), decrease_order(), get_order()"
+  },
+  {
+    "objectID": "reference/check_openssl_installed.html",
+    "href": "reference/check_openssl_installed.html",
+    "title": "check_openssl_installed",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/check_openssl_installed.html#usage",
+    "href": "reference/check_openssl_installed.html#usage",
+    "title": "check_openssl_installed",
+    "section": "Usage",
+    "text": "Usage\ncheck_openssl_installed()"
+  },
+  {
+    "objectID": "reference/check_openssl_installed.html#value",
+    "href": "reference/check_openssl_installed.html#value",
+    "title": "check_openssl_installed",
+    "section": "Value",
+    "text": "Value\nReturns ‘TRUE’ invisibly if found; otherwise, throws an error."
+  },
+  {
+    "objectID": "reference/check_openssl_installed.html#description",
+    "href": "reference/check_openssl_installed.html#description",
+    "title": "check_openssl_installed",
+    "section": "Description",
+    "text": "Description\nVerifies that the ‘openssl’ command-line tool is installed and accessible via the system’s PATH. Required for RSA-PSS signing."
+  },
+  {
+    "objectID": "reference/check_openssl_installed.html#examples",
+    "href": "reference/check_openssl_installed.html#examples",
+    "title": "check_openssl_installed",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \ncheck_openssl_installed()\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/check_openssl_installed.html#see-also",
+    "href": "reference/check_openssl_installed.html#see-also",
+    "title": "check_openssl_installed",
+    "section": "See also",
+    "text": "See also\nOther authentication: generate_kalshi_keypair(), get_kalshi_access_token()"
+  },
+  {
+    "objectID": "reference/decrease_order.html",
+    "href": "reference/decrease_order.html",
+    "title": "decrease_order",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/decrease_order.html#usage",
+    "href": "reference/decrease_order.html#usage",
+    "title": "decrease_order",
+    "section": "Usage",
+    "text": "Usage\ndecrease_order(\n  order_id,\n  reduce_by,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/decrease_order.html#arguments",
+    "href": "reference/decrease_order.html#arguments",
+    "title": "decrease_order",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\norder_id\nCharacter. The order ID to decrease.\n\n\nreduce_by\nInteger. Number of contracts to reduce by.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/decrease_order.html#value",
+    "href": "reference/decrease_order.html#value",
+    "title": "decrease_order",
+    "section": "Value",
+    "text": "Value\nA list with the updated order details."
+  },
+  {
+    "objectID": "reference/decrease_order.html#description",
+    "href": "reference/decrease_order.html#description",
+    "title": "decrease_order",
+    "section": "Description",
+    "text": "Description\nDecreases the remaining quantity of a resting order. Setting to 0 cancels the order."
+  },
+  {
+    "objectID": "reference/decrease_order.html#examples",
+    "href": "reference/decrease_order.html#examples",
+    "title": "decrease_order",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Reduce order by 5 contracts\ndecrease_order(\"order-uuid\", reduce_by = 5)\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/decrease_order.html#see-also",
+    "href": "reference/decrease_order.html#see-also",
+    "title": "decrease_order",
+    "section": "See also",
+    "text": "See also\nOther trading: amend_order(), batch_cancel_orders(), batch_create_orders(), cancel_all_orders(), cancel_order(), create_order(), get_order()"
+  },
+  {
+    "objectID": "reference/get_balance.html",
+    "href": "reference/get_balance.html",
+    "title": "get_balance",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_balance.html#usage",
+    "href": "reference/get_balance.html#usage",
+    "title": "get_balance",
+    "section": "Usage",
+    "text": "Usage\nget_balance(kalshi_access_token = \"KALSHI_API\", demo = FALSE)"
+  },
+  {
+    "objectID": "reference/get_balance.html#arguments",
+    "href": "reference/get_balance.html#arguments",
+    "title": "get_balance",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_balance.html#value",
+    "href": "reference/get_balance.html#value",
+    "title": "get_balance",
+    "section": "Value",
+    "text": "Value\nA list with balance information:\n\nbalance: Available balance in cents\nportfolio_value: Current portfolio value in cents"
+  },
+  {
+    "objectID": "reference/get_balance.html#description",
+    "href": "reference/get_balance.html#description",
+    "title": "get_balance",
+    "section": "Description",
+    "text": "Description\nRetrieves your current account balance and portfolio value. Values are returned in cents."
+  },
+  {
+    "objectID": "reference/get_balance.html#examples",
+    "href": "reference/get_balance.html#examples",
+    "title": "get_balance",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nbal &lt;- get_balance()\ncat(\"Balance: $\", bal$balance / 100, \"\\n\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_balance.html#see-also",
+    "href": "reference/get_balance.html#see-also",
+    "title": "get_balance",
+    "section": "See also",
+    "text": "See also\nOther portfolio: get_fills(), get_orders(), get_positions(), get_settlements()"
+  },
+  {
+    "objectID": "reference/get_event.html",
+    "href": "reference/get_event.html",
+    "title": "get_event",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_event.html#usage",
+    "href": "reference/get_event.html#usage",
+    "title": "get_event",
+    "section": "Usage",
+    "text": "Usage\nget_event(\n  event_ticker,\n  with_nested_markets = FALSE,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_event.html#arguments",
+    "href": "reference/get_event.html#arguments",
+    "title": "get_event",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nevent_ticker\nCharacter. The event ticker (e.g., “KXHIGHNY-25FEB08”).\n\n\nwith_nested_markets\nLogical. Include nested market data.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_event.html#value",
+    "href": "reference/get_event.html#value",
+    "title": "get_event",
+    "section": "Value",
+    "text": "Value\nA list with complete event details, optionally including markets."
+  },
+  {
+    "objectID": "reference/get_event.html#description",
+    "href": "reference/get_event.html#description",
+    "title": "get_event",
+    "section": "Description",
+    "text": "Description\nRetrieves detailed information for a specific event by ticker."
+  },
+  {
+    "objectID": "reference/get_event.html#examples",
+    "href": "reference/get_event.html#examples",
+    "title": "get_event",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nevent &lt;- get_event(\"KXHIGHNY-25FEB08\", with_nested_markets = TRUE)\nevent$title\nevent$markets\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_event.html#see-also",
+    "href": "reference/get_event.html#see-also",
+    "title": "get_event",
+    "section": "See also",
+    "text": "See also\nOther events: get_event_markets(), get_events()"
+  },
+  {
+    "objectID": "reference/get_event_markets.html",
+    "href": "reference/get_event_markets.html",
+    "title": "get_event_markets",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_event_markets.html#usage",
+    "href": "reference/get_event_markets.html#usage",
+    "title": "get_event_markets",
+    "section": "Usage",
+    "text": "Usage\nget_event_markets(\n  event_ticker,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_event_markets.html#arguments",
+    "href": "reference/get_event_markets.html#arguments",
+    "title": "get_event_markets",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nevent_ticker\nCharacter. The event ticker.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_event_markets.html#value",
+    "href": "reference/get_event_markets.html#value",
+    "title": "get_event_markets",
+    "section": "Value",
+    "text": "Value\nA tibble with market information for the event."
+  },
+  {
+    "objectID": "reference/get_event_markets.html#description",
+    "href": "reference/get_event_markets.html#description",
+    "title": "get_event_markets",
+    "section": "Description",
+    "text": "Description\nRetrieves all markets associated with a specific event."
+  },
+  {
+    "objectID": "reference/get_event_markets.html#examples",
+    "href": "reference/get_event_markets.html#examples",
+    "title": "get_event_markets",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nmarkets &lt;- get_event_markets(\"KXHIGHNY-25FEB08\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_event_markets.html#see-also",
+    "href": "reference/get_event_markets.html#see-also",
+    "title": "get_event_markets",
+    "section": "See also",
+    "text": "See also\nOther events: get_event(), get_events()"
+  },
+  {
+    "objectID": "reference/get_events.html",
+    "href": "reference/get_events.html",
+    "title": "get_events",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_events.html#usage",
+    "href": "reference/get_events.html#usage",
+    "title": "get_events",
+    "section": "Usage",
+    "text": "Usage\nget_events(\n  status = NULL,\n  series_ticker = NULL,\n  with_nested_markets = FALSE,\n  limit = 100,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_events.html#arguments",
+    "href": "reference/get_events.html#arguments",
+    "title": "get_events",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nstatus\nCharacter. Filter by status: “open”, “closed”, “settled”.\n\n\nseries_ticker\nCharacter. Filter by series ticker.\n\n\nwith_nested_markets\nLogical. Include nested market data.\n\n\nlimit\nInteger. Results per page (1-200). Defaults to 100.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_events.html#value",
+    "href": "reference/get_events.html#value",
+    "title": "get_events",
+    "section": "Value",
+    "text": "Value\nA tibble with event information."
+  },
+  {
+    "objectID": "reference/get_events.html#description",
+    "href": "reference/get_events.html#description",
+    "title": "get_events",
+    "section": "Description",
+    "text": "Description\nRetrieves a list of events with optional filtering. An event is a specific occurrence within a series (e.g., “NYC High Temperature on Feb 8, 2025”)."
+  },
+  {
+    "objectID": "reference/get_events.html#examples",
+    "href": "reference/get_events.html#examples",
+    "title": "get_events",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get all open events\nevents &lt;- get_events(status = \"open\")\n\n# Get events for a specific series\nevents &lt;- get_events(series_ticker = \"KXHIGHNY\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_events.html#see-also",
+    "href": "reference/get_events.html#see-also",
+    "title": "get_events",
+    "section": "See also",
+    "text": "See also\nOther events: get_event(), get_event_markets()"
+  },
+  {
+    "objectID": "reference/get_fills.html",
+    "href": "reference/get_fills.html",
+    "title": "get_fills",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_fills.html#usage",
+    "href": "reference/get_fills.html#usage",
+    "title": "get_fills",
+    "section": "Usage",
+    "text": "Usage\nget_fills(\n  ticker = NULL,\n  order_id = NULL,\n  limit = 100,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_fills.html#arguments",
+    "href": "reference/get_fills.html#arguments",
+    "title": "get_fills",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. Filter by specific market ticker.\n\n\norder_id\nCharacter. Filter by specific order ID.\n\n\nlimit\nInteger. Results per page (1-1000). Defaults to 100.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_fills.html#value",
+    "href": "reference/get_fills.html#value",
+    "title": "get_fills",
+    "section": "Value",
+    "text": "Value\nA tibble with fill information."
+  },
+  {
+    "objectID": "reference/get_fills.html#description",
+    "href": "reference/get_fills.html#description",
+    "title": "get_fills",
+    "section": "Description",
+    "text": "Description\nRetrieves your trade fills (executed trades)."
+  },
+  {
+    "objectID": "reference/get_fills.html#examples",
+    "href": "reference/get_fills.html#examples",
+    "title": "get_fills",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nfills &lt;- get_fills()\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_fills.html#see-also",
+    "href": "reference/get_fills.html#see-also",
+    "title": "get_fills",
+    "section": "See also",
+    "text": "See also\nOther portfolio: get_balance(), get_orders(), get_positions(), get_settlements()"
+  },
+  {
+    "objectID": "reference/get_market.html",
+    "href": "reference/get_market.html",
+    "title": "get_market",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_market.html#usage",
+    "href": "reference/get_market.html#usage",
+    "title": "get_market",
+    "section": "Usage",
+    "text": "Usage\nget_market(ticker, kalshi_access_token = \"KALSHI_API\", demo = FALSE)"
+  },
+  {
+    "objectID": "reference/get_market.html#arguments",
+    "href": "reference/get_market.html#arguments",
+    "title": "get_market",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. The market ticker (e.g., “KXHIGHNY-25FEB08-B54”).\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_market.html#value",
+    "href": "reference/get_market.html#value",
+    "title": "get_market",
+    "section": "Value",
+    "text": "Value\nA list with complete market details."
+  },
+  {
+    "objectID": "reference/get_market.html#description",
+    "href": "reference/get_market.html#description",
+    "title": "get_market",
+    "section": "Description",
+    "text": "Description\nRetrieves detailed information for a specific market by ticker."
+  },
+  {
+    "objectID": "reference/get_market.html#examples",
+    "href": "reference/get_market.html#examples",
+    "title": "get_market",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nmarket &lt;- get_market(\"KXHIGHNY-25FEB08-B54\")\nmarket$title\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_market.html#see-also",
+    "href": "reference/get_market.html#see-also",
+    "title": "get_market",
+    "section": "See also",
+    "text": "See also\nOther markets: get_candlesticks(), get_markets(), get_orderbook(), get_trades()"
+  },
+  {
+    "objectID": "reference/get_markets.html",
+    "href": "reference/get_markets.html",
+    "title": "get_markets",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_markets.html#usage",
+    "href": "reference/get_markets.html#usage",
+    "title": "get_markets",
+    "section": "Usage",
+    "text": "Usage\nget_markets(\n  status = NULL,\n  series_ticker = NULL,\n  event_ticker = NULL,\n  tickers = NULL,\n  limit = 100,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_markets.html#arguments",
+    "href": "reference/get_markets.html#arguments",
+    "title": "get_markets",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nstatus\nCharacter. Filter by status: “unopened”, “open”, “closed”, “settled”.\n\n\nseries_ticker\nCharacter. Filter by series ticker.\n\n\nevent_ticker\nCharacter. Filter by event ticker.\n\n\ntickers\nCharacter vector. Specific market tickers to retrieve.\n\n\nlimit\nInteger. Results per page (1-1000). Defaults to 100.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all. Defaults to NULL.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_markets.html#value",
+    "href": "reference/get_markets.html#value",
+    "title": "get_markets",
+    "section": "Value",
+    "text": "Value\nA tibble with market information including ticker, title, status, yes_price, no_price, volume, and other market details."
+  },
+  {
+    "objectID": "reference/get_markets.html#description",
+    "href": "reference/get_markets.html#description",
+    "title": "get_markets",
+    "section": "Description",
+    "text": "Description\nRetrieves a list of markets with optional filtering. Handles pagination automatically to return all matching results."
+  },
+  {
+    "objectID": "reference/get_markets.html#examples",
+    "href": "reference/get_markets.html#examples",
+    "title": "get_markets",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get all open markets\nmarkets &lt;- get_markets(status = \"open\")\n\n# Get markets for a specific series\nmarkets &lt;- get_markets(series_ticker = \"KXHIGHNY\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_markets.html#see-also",
+    "href": "reference/get_markets.html#see-also",
+    "title": "get_markets",
+    "section": "See also",
+    "text": "See also\nOther markets: get_candlesticks(), get_market(), get_orderbook(), get_trades()"
+  },
+  {
+    "objectID": "reference/get_orderbook.html",
+    "href": "reference/get_orderbook.html",
+    "title": "get_orderbook",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_orderbook.html#usage",
+    "href": "reference/get_orderbook.html#usage",
+    "title": "get_orderbook",
+    "section": "Usage",
+    "text": "Usage\nget_orderbook(\n  ticker,\n  depth = 10,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_orderbook.html#arguments",
+    "href": "reference/get_orderbook.html#arguments",
+    "title": "get_orderbook",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. The market ticker.\n\n\ndepth\nInteger. Order book depth (0 or negative for all levels, 1-100 for specific depth).\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_orderbook.html#value",
+    "href": "reference/get_orderbook.html#value",
+    "title": "get_orderbook",
+    "section": "Value",
+    "text": "Value\nA list with yes and no order book levels."
+  },
+  {
+    "objectID": "reference/get_orderbook.html#description",
+    "href": "reference/get_orderbook.html#description",
+    "title": "get_orderbook",
+    "section": "Description",
+    "text": "Description\nRetrieves the current order book for a specific market showing bid depths."
+  },
+  {
+    "objectID": "reference/get_orderbook.html#examples",
+    "href": "reference/get_orderbook.html#examples",
+    "title": "get_orderbook",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nbook &lt;- get_orderbook(\"KXHIGHNY-25FEB08-B54\")\nbook$yes\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_orderbook.html#see-also",
+    "href": "reference/get_orderbook.html#see-also",
+    "title": "get_orderbook",
+    "section": "See also",
+    "text": "See also\nOther markets: get_candlesticks(), get_market(), get_markets(), get_trades()"
+  },
+  {
+    "objectID": "reference/get_positions.html",
+    "href": "reference/get_positions.html",
+    "title": "get_positions",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_positions.html#usage",
+    "href": "reference/get_positions.html#usage",
+    "title": "get_positions",
+    "section": "Usage",
+    "text": "Usage\nget_positions(\n  ticker = NULL,\n  event_ticker = NULL,\n  limit = 100,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_positions.html#arguments",
+    "href": "reference/get_positions.html#arguments",
+    "title": "get_positions",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. Filter by specific market ticker.\n\n\nevent_ticker\nCharacter. Filter by event ticker.\n\n\nlimit\nInteger. Results per page (1-1000). Defaults to 100.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_positions.html#value",
+    "href": "reference/get_positions.html#value",
+    "title": "get_positions",
+    "section": "Value",
+    "text": "Value\nA tibble with position information including market ticker, position size, average price, and realized/unrealized P&L."
+  },
+  {
+    "objectID": "reference/get_positions.html#description",
+    "href": "reference/get_positions.html#description",
+    "title": "get_positions",
+    "section": "Description",
+    "text": "Description\nRetrieves your current positions across all markets."
+  },
+  {
+    "objectID": "reference/get_positions.html#examples",
+    "href": "reference/get_positions.html#examples",
+    "title": "get_positions",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \npositions &lt;- get_positions()\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_positions.html#see-also",
+    "href": "reference/get_positions.html#see-also",
+    "title": "get_positions",
+    "section": "See also",
+    "text": "See also\nOther portfolio: get_balance(), get_fills(), get_orders(), get_settlements()"
+  },
+  {
+    "objectID": "reference/get_series_history.html",
+    "href": "reference/get_series_history.html",
+    "title": "get_series_history",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_series_history.html#usage",
+    "href": "reference/get_series_history.html#usage",
+    "title": "get_series_history",
+    "section": "Usage",
+    "text": "Usage\nget_series_history(\n  series_ticker,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_series_history.html#arguments",
+    "href": "reference/get_series_history.html#arguments",
+    "title": "get_series_history",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nseries_ticker\nCharacter. The series ticker (e.g., “KXHIGHNY”).\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_series_history.html#value",
+    "href": "reference/get_series_history.html#value",
+    "title": "get_series_history",
+    "section": "Value",
+    "text": "Value\nA tibble with all settled markets for the series."
+  },
+  {
+    "objectID": "reference/get_series_history.html#description",
+    "href": "reference/get_series_history.html#description",
+    "title": "get_series_history",
+    "section": "Description",
+    "text": "Description\nRetrieves all historical results for a series, including all settled events and their market outcomes. Useful for backtesting and analysis."
+  },
+  {
+    "objectID": "reference/get_series_history.html#examples",
+    "href": "reference/get_series_history.html#examples",
+    "title": "get_series_history",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get full history for NYC temperature series\nhistory &lt;- get_series_history(\"KXHIGHNY\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_series_history.html#see-also",
+    "href": "reference/get_series_history.html#see-also",
+    "title": "get_series_history",
+    "section": "See also",
+    "text": "See also\nOther history: get_event_candlesticks(), get_event_results(), get_market_history(), get_settled_events(), get_settled_markets(), get_trade_history()"
+  },
+  {
+    "objectID": "reference/get_settled_events.html",
+    "href": "reference/get_settled_events.html",
+    "title": "get_settled_events",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_settled_events.html#usage",
+    "href": "reference/get_settled_events.html#usage",
+    "title": "get_settled_events",
+    "section": "Usage",
+    "text": "Usage\nget_settled_events(\n  series_ticker = NULL,\n  limit = 100,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_settled_events.html#arguments",
+    "href": "reference/get_settled_events.html#arguments",
+    "title": "get_settled_events",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nseries_ticker\nCharacter. Filter by series ticker.\n\n\nlimit\nInteger. Results per page (1-200). Defaults to 100.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_settled_events.html#value",
+    "href": "reference/get_settled_events.html#value",
+    "title": "get_settled_events",
+    "section": "Value",
+    "text": "Value\nA tibble with settled event information."
+  },
+  {
+    "objectID": "reference/get_settled_events.html#description",
+    "href": "reference/get_settled_events.html#description",
+    "title": "get_settled_events",
+    "section": "Description",
+    "text": "Description\nRetrieves settled events with optional filtering."
+  },
+  {
+    "objectID": "reference/get_settled_events.html#examples",
+    "href": "reference/get_settled_events.html#examples",
+    "title": "get_settled_events",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get all settled events for a series\nevents &lt;- get_settled_events(series_ticker = \"KXHIGHNY\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_settled_events.html#see-also",
+    "href": "reference/get_settled_events.html#see-also",
+    "title": "get_settled_events",
+    "section": "See also",
+    "text": "See also\nOther history: get_event_candlesticks(), get_event_results(), get_market_history(), get_series_history(), get_settled_markets(), get_trade_history()"
+  },
+  {
+    "objectID": "reference/get_settlements.html",
+    "href": "reference/get_settlements.html",
+    "title": "get_settlements",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_settlements.html#usage",
+    "href": "reference/get_settlements.html#usage",
+    "title": "get_settlements",
+    "section": "Usage",
+    "text": "Usage\nget_settlements(\n  ticker = NULL,\n  event_ticker = NULL,\n  limit = 100,\n  max_pages = NULL,\n  kalshi_access_token = \"KALSHI_API\",\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_settlements.html#arguments",
+    "href": "reference/get_settlements.html#arguments",
+    "title": "get_settlements",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. Filter by specific market ticker.\n\n\nevent_ticker\nCharacter. Filter by event ticker.\n\n\nlimit\nInteger. Results per page (1-1000). Defaults to 100.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\nkalshi_access_token\nCharacter. Environment variable name for API key.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_settlements.html#value",
+    "href": "reference/get_settlements.html#value",
+    "title": "get_settlements",
+    "section": "Value",
+    "text": "Value\nA tibble with settlement information."
+  },
+  {
+    "objectID": "reference/get_settlements.html#description",
+    "href": "reference/get_settlements.html#description",
+    "title": "get_settlements",
+    "section": "Description",
+    "text": "Description\nRetrieves your settlement history."
+  },
+  {
+    "objectID": "reference/get_settlements.html#examples",
+    "href": "reference/get_settlements.html#examples",
+    "title": "get_settlements",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \nsettlements &lt;- get_settlements()\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_settlements.html#see-also",
+    "href": "reference/get_settlements.html#see-also",
+    "title": "get_settlements",
+    "section": "See also",
+    "text": "See also\nOther portfolio: get_balance(), get_fills(), get_orders(), get_positions()"
+  },
+  {
+    "objectID": "reference/get_trades.html",
+    "href": "reference/get_trades.html",
+    "title": "get_trades",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/get_trades.html#usage",
+    "href": "reference/get_trades.html#usage",
+    "title": "get_trades",
+    "section": "Usage",
+    "text": "Usage\nget_trades(\n  ticker = NULL,\n  limit = 100,\n  min_ts = NULL,\n  max_ts = NULL,\n  max_pages = 1,\n  demo = FALSE\n)"
+  },
+  {
+    "objectID": "reference/get_trades.html#arguments",
+    "href": "reference/get_trades.html#arguments",
+    "title": "get_trades",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\nticker\nCharacter. Optional market ticker to filter trades.\n\n\nlimit\nInteger. Number of trades to return (1-1000). Defaults to 100.\n\n\nmin_ts\nInteger. Minimum timestamp (Unix ms) filter.\n\n\nmax_ts\nInteger. Maximum timestamp (Unix ms) filter.\n\n\nmax_pages\nInteger. Maximum pages to fetch. NULL for all.\n\n\ndemo\nLogical. Use demo environment if TRUE."
+  },
+  {
+    "objectID": "reference/get_trades.html#value",
+    "href": "reference/get_trades.html#value",
+    "title": "get_trades",
+    "section": "Value",
+    "text": "Value\nA tibble with trade information."
+  },
+  {
+    "objectID": "reference/get_trades.html#description",
+    "href": "reference/get_trades.html#description",
+    "title": "get_trades",
+    "section": "Description",
+    "text": "Description\nRetrieves recent trades for all markets or a specific market."
+  },
+  {
+    "objectID": "reference/get_trades.html#examples",
+    "href": "reference/get_trades.html#examples",
+    "title": "get_trades",
+    "section": "Examples",
+    "text": "Examples\n## Not run: \n# Get recent trades\ntrades &lt;- get_trades(limit = 50)\n\n# Get trades for specific market\ntrades &lt;- get_trades(ticker = \"KXHIGHNY-25FEB08-B54\")\n\n## End(Not run)"
+  },
+  {
+    "objectID": "reference/get_trades.html#see-also",
+    "href": "reference/get_trades.html#see-also",
+    "title": "get_trades",
+    "section": "See also",
+    "text": "See also\nOther markets: get_candlesticks(), get_market(), get_markets(), get_orderbook()"
+  },
+  {
+    "objectID": "reference/kalshi_base_url.html",
+    "href": "reference/kalshi_base_url.html",
+    "title": "kalshi_base_url",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/kalshi_base_url.html#usage",
+    "href": "reference/kalshi_base_url.html#usage",
+    "title": "kalshi_base_url",
+    "section": "Usage",
+    "text": "Usage\nkalshi_base_url(demo = FALSE)"
+  },
+  {
+    "objectID": "reference/kalshi_base_url.html#arguments",
+    "href": "reference/kalshi_base_url.html#arguments",
+    "title": "kalshi_base_url",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ndemo\nLogical. If ‘TRUE’, returns the demo environment URL. If ‘FALSE’ (default), returns the production URL."
+  },
+  {
+    "objectID": "reference/kalshi_base_url.html#value",
+    "href": "reference/kalshi_base_url.html#value",
+    "title": "kalshi_base_url",
+    "section": "Value",
+    "text": "Value\nCharacter string with the base URL."
+  },
+  {
+    "objectID": "reference/kalshi_base_url.html#description",
+    "href": "reference/kalshi_base_url.html#description",
+    "title": "kalshi_base_url",
+    "section": "Description",
+    "text": "Description\nReturns the appropriate base URL for API requests."
+  },
+  {
+    "objectID": "reference/kalshi_perform.html",
+    "href": "reference/kalshi_perform.html",
+    "title": "kalshi_perform",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/kalshi_perform.html#usage",
+    "href": "reference/kalshi_perform.html#usage",
+    "title": "kalshi_perform",
+    "section": "Usage",
+    "text": "Usage\nkalshi_perform(req)"
+  },
+  {
+    "objectID": "reference/kalshi_perform.html#arguments",
+    "href": "reference/kalshi_perform.html#arguments",
+    "title": "kalshi_perform",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\nArgument\nDescription\n\n\n\n\nreq\nAn httr2 request object."
+  },
+  {
+    "objectID": "reference/kalshi_perform.html#value",
+    "href": "reference/kalshi_perform.html#value",
+    "title": "kalshi_perform",
+    "section": "Value",
+    "text": "Value\nParsed JSON response as a list."
+  },
+  {
+    "objectID": "reference/kalshi_perform.html#description",
+    "href": "reference/kalshi_perform.html#description",
+    "title": "kalshi_perform",
+    "section": "Description",
+    "text": "Description\nInternal helper to execute a request and parse the JSON response."
+  },
+  {
+    "objectID": "reference/parse_timestamp.html",
+    "href": "reference/parse_timestamp.html",
+    "title": "parse_timestamp",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/parse_timestamp.html#usage",
+    "href": "reference/parse_timestamp.html#usage",
+    "title": "parse_timestamp",
+    "section": "Usage",
+    "text": "Usage\nparse_timestamp(x)"
+  },
+  {
+    "objectID": "reference/parse_timestamp.html#arguments",
+    "href": "reference/parse_timestamp.html#arguments",
+    "title": "parse_timestamp",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\nArgument\nDescription\n\n\n\n\nx\nDate, character, POSIXt, or numeric (already Unix timestamp)."
+  },
+  {
+    "objectID": "reference/parse_timestamp.html#value",
+    "href": "reference/parse_timestamp.html#value",
+    "title": "parse_timestamp",
+    "section": "Value",
+    "text": "Value\nInteger. Unix timestamp in seconds."
+  },
+  {
+    "objectID": "reference/parse_timestamp.html#description",
+    "href": "reference/parse_timestamp.html#description",
+    "title": "parse_timestamp",
+    "section": "Description",
+    "text": "Description\nConverts various date inputs to Unix timestamp (seconds)."
+  },
+  {
+    "objectID": "reference/sign_kalshi_request.html",
+    "href": "reference/sign_kalshi_request.html",
+    "title": "sign_kalshi_request",
+    "section": "",
+    "text": "&lt; Back to Reference"
+  },
+  {
+    "objectID": "reference/sign_kalshi_request.html#usage",
+    "href": "reference/sign_kalshi_request.html#usage",
+    "title": "sign_kalshi_request",
+    "section": "Usage",
+    "text": "Usage\nsign_kalshi_request(timestamp, method, path)"
+  },
+  {
+    "objectID": "reference/sign_kalshi_request.html#arguments",
+    "href": "reference/sign_kalshi_request.html#arguments",
+    "title": "sign_kalshi_request",
+    "section": "Arguments",
+    "text": "Arguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ntimestamp\nCharacter. A millisecond Unix timestamp string.\n\n\nmethod\nCharacter. The HTTP method in uppercase (e.g., “GET”, “POST”).\n\n\npath\nCharacter. The API endpoint path without query parameters."
+  },
+  {
+    "objectID": "reference/sign_kalshi_request.html#value",
+    "href": "reference/sign_kalshi_request.html#value",
+    "title": "sign_kalshi_request",
+    "section": "Value",
+    "text": "Value\nA base64-encoded string containing the RSA-PSS signature."
+  },
+  {
+    "objectID": "reference/sign_kalshi_request.html#description",
+    "href": "reference/sign_kalshi_request.html#description",
+    "title": "sign_kalshi_request",
+    "section": "Description",
+    "text": "Description\nPerforms RSA-PSS signing using the system’s ‘openssl’ binary to generate the ‘KALSHI-ACCESS-SIGNATURE’ header."
+  },
+  {
+    "objectID": "reference/sign_kalshi_request.html#details",
+    "href": "reference/sign_kalshi_request.html#details",
+    "title": "sign_kalshi_request",
+    "section": "Details",
+    "text": "Details\nThe R ‘openssl’ package does not expose RSA-PSS padding, so this function interfaces directly with the system’s ‘openssl’ installation.\nSignature is generated using: - Message: ‘timestamp + method + path’ - Algorithm: SHA-256 - Padding: RSA-PSS - Salt Length: Equal to digest length (32 bytes)"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html",
+    "href": "vignettes/articles/getting-started.html",
+    "title": "Getting Started with kalshi",
+    "section": "",
+    "text": "The kalshi package provides a complete R interface to the Kalshi prediction market API. This guide covers installation, authentication, and common use cases."
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#installation",
+    "href": "vignettes/articles/getting-started.html#installation",
+    "title": "Getting Started with kalshi",
+    "section": "Installation",
+    "text": "Installation\n\n# Install from local source\ndevtools::install()\n\n# Or load for development\ndevtools::load_all()"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#authentication-setup",
+    "href": "vignettes/articles/getting-started.html#authentication-setup",
+    "title": "Getting Started with kalshi",
+    "section": "Authentication Setup",
+    "text": "Authentication Setup\nKalshi uses RSA key-based authentication. You need to:\n\nGenerate a key pair\nUpload the public key to Kalshi\nStore your API Key ID\n\n\nStep 1: Generate Keys\n\nlibrary(kalshi)\n\n# Generate RSA key pair\ngenerate_kalshi_keypair(\"kalshi-key.key\")\n\nThis creates kalshi-key.key (private, keep secret) and prints the public key.\n\n\nStep 2: Upload to Kalshi\n\nCopy the public key from the console\nGo to Kalshi API Keys\nCreate a new API key and paste your public key\nSave the Key ID (a UUID like 5a2e774e-7f95-4bee-8e98-f4b29f5d38aa)\n\n\n\nStep 3: Store Key ID\n\nusethis::edit_r_environ()\n\nAdd this line to your .Renviron:\nKALSHI_API=your-key-id-here\nRestart R for changes to take effect.\n\n\nStep 4: Authenticate Each Session\n\nlibrary(kalshi)\nkalshi_auth_setup(\"kalshi-key.key\")"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#basic-usage",
+    "href": "vignettes/articles/getting-started.html#basic-usage",
+    "title": "Getting Started with kalshi",
+    "section": "Basic Usage",
+    "text": "Basic Usage\n\nCheck Account Balance\n\nbal &lt;- get_balance()\ncat(\"Balance: $\", bal$balance / 100, \"\\n\")\ncat(\"Portfolio value: $\", bal$portfolio_value / 100, \"\\n\")\n\n\n\nBrowse Markets\n\n# Get open markets\nmarkets &lt;- get_markets(status = \"open\", limit = 10)\n\n# Filter by series\nweather_markets &lt;- get_markets(series_ticker = \"KXHIGHNY\", status = \"open\")\n\n\n\nGet Series Information\n\n# List all series\nseries &lt;- get_series_list()\n\n# Find weather series\nweather &lt;- series[grepl(\"HIGH\", series$ticker), ]\n\n# Get specific series details\nnyc &lt;- get_series(\"KXHIGHNY\")"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#weather-market-analysis",
+    "href": "vignettes/articles/getting-started.html#weather-market-analysis",
+    "title": "Getting Started with kalshi",
+    "section": "Weather Market Analysis",
+    "text": "Weather Market Analysis\n\nGet Event Results\n\n# Using simplified date input\nresults &lt;- get_event_results(\n  series_ticker = \"KXHIGHNY\",\n  date = \"2026-02-07\"\n)\n\n# See which bracket won\nresults[results$result == \"yes\", c(\"title\", \"volume\")]\n\n\n\nTrack Price Evolution\n\n# Get hourly price history\ncandles &lt;- get_candlesticks(\n ticker = \"KXHIGHNY-26FEB07-B26.5\",\n  series_ticker = \"KXHIGHNY\",\n  start = \"2026-02-06\",\n  end = \"2026-02-08\",\n  period_interval = 60  # hourly\n)\n\n# See the price journey\ncandles[, c(\"time\", \"open\", \"high\", \"low\", \"close\", \"volume\")]\n\n# Summary\ncat(\"Started at:\", candles$open[1], \"%\\n\")\ncat(\"Ended at:\", candles$close[nrow(candles)], \"%\\n\")\n\n\n\nHistorical Analysis\n\n# Get all settled markets for a series\nhistory &lt;- get_series_history(\"KXHIGHNY\")\n\n# Get settled markets in a date range\nrecent &lt;- get_settled_markets(\n  series_ticker = \"KXHIGHNY\",\n  from = \"2026-01-01\",\n  to = \"2026-02-01\"\n)\n\n# Get markets from the last week\nlast_week &lt;- get_settled_markets(from = Sys.Date() - 7)"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#trading",
+    "href": "vignettes/articles/getting-started.html#trading",
+    "title": "Getting Started with kalshi",
+    "section": "Trading",
+    "text": "Trading\n\nPlace Orders\n\n# Buy 10 yes contracts at 45 cents\norder &lt;- create_order(\n  ticker = \"KXHIGHNY-26FEB08-B26.5\",\n  side = \"yes\",\n  action = \"buy\",\n  count = 10,\n  yes_price = 45\n)\n\n# Market order (no price needed)\norder &lt;- create_order(\n  ticker = \"KXHIGHNY-26FEB08-B26.5\",\n  side = \"yes\",\n  action = \"buy\",\n  count = 10,\n  type = \"market\"\n)\n\n\n\nManage Orders\n\n# View resting orders\norders &lt;- get_orders(status = \"resting\")\n\n# Cancel an order\ncancel_order(order$order_id)\n\n# Amend price\namend_order(order$order_id, yes_price = 50)\n\n# Cancel all orders\ncancel_all_orders()\n\n\n\nView Portfolio\n\n# Current positions\npositions &lt;- get_positions()\n\n# Trade history\nfills &lt;- get_fills()\n\n# Settlement history\nsettlements &lt;- get_settlements()"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#date-input-formats",
+    "href": "vignettes/articles/getting-started.html#date-input-formats",
+    "title": "Getting Started with kalshi",
+    "section": "Date Input Formats",
+    "text": "Date Input Formats\nAll date parameters accept multiple formats:\n\n# String dates\nget_event_results(series_ticker = \"KXHIGHNY\", date = \"2026-02-07\")\n\n# R Date objects\nget_settled_markets(from = as.Date(\"2026-01-01\"))\n\n# Relative dates\nget_settled_markets(from = Sys.Date() - 7)  # Last week\n\n# Date ranges\nget_candlesticks(\n  ticker = \"...\",\n  series_ticker = \"...\",\n  start = \"2026-02-01\",\n  end = \"2026-02-07\"\n)"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#available-weather-series",
+    "href": "vignettes/articles/getting-started.html#available-weather-series",
+    "title": "Getting Started with kalshi",
+    "section": "Available Weather Series",
+    "text": "Available Weather Series\n\n\n\nSeries\nDescription\n\n\n\n\nKXHIGHNY\nNYC high temperature\n\n\nKXHIGHLA\nLA high temperature\n\n\nKXHIGHMIA\nMiami high temperature\n\n\nKXHIGHCHI\nChicago high temperature\n\n\n\nFind all series:\n\nseries &lt;- get_series_list()"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#error-handling",
+    "href": "vignettes/articles/getting-started.html#error-handling",
+    "title": "Getting Started with kalshi",
+    "section": "Error Handling",
+    "text": "Error Handling\nThe package uses cli for informative error messages:\n\n# If not authenticated\nget_balance()\n#&gt; Error: Kalshi authentication has not been initialized.\n#&gt; ℹ You must provide the path to your private RSA key.\n#&gt; ✖ Please run: `kalshi_auth_setup()`.\n\n# If key file missing\nkalshi_auth_setup(\"nonexistent.key\")\n#&gt; Error: The private key file was not found at: nonexistent.key"
+  },
+  {
+    "objectID": "vignettes/articles/getting-started.html#function-reference",
+    "href": "vignettes/articles/getting-started.html#function-reference",
+    "title": "Getting Started with kalshi",
+    "section": "Function Reference",
+    "text": "Function Reference\nSee the Reference page for complete documentation of all 37 exported functions."
+  }
+]

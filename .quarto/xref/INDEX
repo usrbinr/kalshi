@@ -1,0 +1,152 @@
+{
+  "articles.qmd": {
+    "articles.html": "1415c64a"
+  },
+  "index.qmd": {
+    "index.html": "f60d5526"
+  },
+  "reference.qmd": {
+    "reference.html": "6d5b8292"
+  },
+  "reference/amend_order.qmd": {
+    "amend_order.html": "34116e50"
+  },
+  "reference/batch_cancel_orders.qmd": {
+    "batch_cancel_orders.html": "c489cac3"
+  },
+  "reference/batch_create_orders.qmd": {
+    "batch_create_orders.html": "4012296f"
+  },
+  "reference/build_event_ticker.qmd": {
+    "build_event_ticker.html": "ed105dea"
+  },
+  "reference/cancel_all_orders.qmd": {
+    "cancel_all_orders.html": "12104e28"
+  },
+  "reference/cancel_order.qmd": {
+    "cancel_order.html": "8c1a4707"
+  },
+  "reference/check_kalshi_auth.qmd": {
+    "check_kalshi_auth.html": "12eff6f7"
+  },
+  "reference/check_openssl_installed.qmd": {
+    "check_openssl_installed.html": "c43498b7"
+  },
+  "reference/create_order.qmd": {
+    "create_order.html": "2c080cc5"
+  },
+  "reference/decrease_order.qmd": {
+    "decrease_order.html": "a3d58cf7"
+  },
+  "reference/generate_kalshi_keypair.qmd": {
+    "generate_kalshi_keypair.html": "01738dce"
+  },
+  "reference/get_balance.qmd": {
+    "get_balance.html": "00158194"
+  },
+  "reference/get_candlesticks.qmd": {
+    "get_candlesticks.html": "4e7ac037"
+  },
+  "reference/get_event.qmd": {
+    "get_event.html": "0d5aaf40"
+  },
+  "reference/get_event_candlesticks.qmd": {
+    "get_event_candlesticks.html": "4dbdb739"
+  },
+  "reference/get_event_markets.qmd": {
+    "get_event_markets.html": "839d7c4a"
+  },
+  "reference/get_event_results.qmd": {
+    "get_event_results.html": "2dcc73fb"
+  },
+  "reference/get_events.qmd": {
+    "get_events.html": "acbd7f72"
+  },
+  "reference/get_exchange_status.qmd": {
+    "get_exchange_status.html": "967b57bc"
+  },
+  "reference/get_fills.qmd": {
+    "get_fills.html": "f4ef74de"
+  },
+  "reference/get_kalshi_access_token.qmd": {
+    "get_kalshi_access_token.html": "5cf4d8c6"
+  },
+  "reference/get_market.qmd": {
+    "get_market.html": "d4ac2fcf"
+  },
+  "reference/get_market_history.qmd": {
+    "get_market_history.html": "56dd582e"
+  },
+  "reference/get_markets.qmd": {
+    "get_markets.html": "d15f8fa3"
+  },
+  "reference/get_order.qmd": {
+    "get_order.html": "f0c5858a"
+  },
+  "reference/get_orderbook.qmd": {
+    "get_orderbook.html": "32354f1a"
+  },
+  "reference/get_orders.qmd": {
+    "get_orders.html": "0705c8ff"
+  },
+  "reference/get_positions.qmd": {
+    "get_positions.html": "07dfd5cf"
+  },
+  "reference/get_series.qmd": {
+    "get_series.html": "6f30c728"
+  },
+  "reference/get_series_history.qmd": {
+    "get_series_history.html": "61362f9e"
+  },
+  "reference/get_series_list.qmd": {
+    "get_series_list.html": "7aaeb071"
+  },
+  "reference/get_settled_events.qmd": {
+    "get_settled_events.html": "212d43b4"
+  },
+  "reference/get_settled_markets.qmd": {
+    "get_settled_markets.html": "47a7bc8f"
+  },
+  "reference/get_settlements.qmd": {
+    "get_settlements.html": "f3923317"
+  },
+  "reference/get_trade_history.qmd": {
+    "get_trade_history.html": "498a94b0"
+  },
+  "reference/get_trades.qmd": {
+    "get_trades.html": "dcc5b22a"
+  },
+  "reference/kalshi_auth_setup.qmd": {
+    "kalshi_auth_setup.html": "23d4ae8b"
+  },
+  "reference/kalshi_base_url.qmd": {
+    "kalshi_base_url.html": "85a6d381"
+  },
+  "reference/kalshi_paginate.qmd": {
+    "kalshi_paginate.html": "005bde9a"
+  },
+  "reference/kalshi_perform.qmd": {
+    "kalshi_perform.html": "4cb54b2b"
+  },
+  "reference/kalshi_request.qmd": {
+    "kalshi_request.html": "6be462e6"
+  },
+  "reference/parse_timestamp.qmd": {
+    "parse_timestamp.html": "5357661e"
+  },
+  "reference/req_kalshi_auth.qmd": {
+    "req_kalshi_auth.html": "dafd2866"
+  },
+  "reference/sign_kalshi_request.qmd": {
+    "sign_kalshi_request.html": "ac60a449"
+  },
+  "vignettes/articles/authentication.qmd": {
+    "authentication.html": "df916577"
+  },
+  "vignettes/articles/getting-started.qmd": {
+    "getting-started.html": "e3420a29"
+  },
+  "CLAUDE.md": {
+    "CLAUDE.html": "0b64d909"
+  }
+}

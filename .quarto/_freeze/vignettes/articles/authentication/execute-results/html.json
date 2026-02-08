@@ -1,0 +1,15 @@
+{
+  "hash": "ca609886566d4354de07d2dc12edbec1",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Authenticating with the Kalshi API\"\n---\n\n\n\nThe `kalshi` package uses a secure, \"Pure R\" approach to authentication. Instead of relying on external Python libraries, it interfaces directly with your system's `openssl` tool to perform RSA-PSS signing.\n\n## Prerequisite: OpenSSL\n\nThis package requires the `openssl` command-line tool. Most Linux and macOS systems have this pre-installed. You can verify it by running:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(kalshi)\ncheck_openssl_installed()\n```\n:::\n\n\n## First-Time Setup: Generating Keys\n\nIf you do not already have an RSA key pair, generate one:\n\n\n::: {.cell}\n\n```{.r .cell-code}\ngenerate_kalshi_keypair(\"kalshi-key.key\")\n```\n:::\n\nThis creates a private `.key` file and displays the **Public Key** in your console.\n\n### Registering with Kalshi\n\n1. Copy the **Public Key** printed in your console.\n2. Log in to the [Kalshi Developer Dashboard](https://kalshi.com/account/api-keys).\n3. Click \"Create API Key\" and paste your public key.\n4. Save the **Key ID** (a UUID) that Kalshi provides.\n\n## Step 1: Environment Variables\n\nAdd your Key ID to your `.Renviron` file:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nusethis::edit_r_environ()\n```\n:::\n\n\nAdd this line:\n\n```\nKALSHI_API=your-uuid-here\n```\n\nSave and restart R.\n\n## Step 2: Session Setup\n\nBefore making API calls, point the package to your private RSA key:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nkalshi_auth_setup(\"kalshi-key.key\")\n```\n:::\n\n\n## Making API Calls\n\nOnce authenticated, you can call any function:\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# Get your account balance\nbal <- get_balance()\ncat(\"Balance: $\", bal$balance / 100, \"\\n\")\n\n# Get market data\nmarkets <- get_markets(status = \"open\", limit = 10)\n\n# Get series information\nseries <- get_series_list(max_pages = 1)\n```\n:::\n\n\n## How Authentication Works\n\nWhen you call a function like `get_markets()`:\n1. **Validation**: `check_kalshi_auth()` ensures you've run the setup.\n2. **Signing**: A message (`timestamp + method + path`) is signed using RSA-PSS via the system `openssl` binary.\n3. **Request**: `httr2` attaches the signature and your Key ID to the headers.\n\n## Security Considerations\n\n* **Key Safety**: Your private key is never read into R memory; it is only accessed by the system OpenSSL tool.\n* **Git Safety**: Ensure `*.key` and `.Renviron` are in your `.gitignore`.\n\n## Troubleshooting\n\nIf you see `OpenSSL system call failed`, verify the binary is available:\n\n```bash\nwhich openssl\nopenssl version\n```\n\nOn Ubuntu/Debian:\n\n```bash\nsudo apt update && sudo apt install openssl\n```\n\nOn macOS:\n\n```bash\nbrew install openssl\n```\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

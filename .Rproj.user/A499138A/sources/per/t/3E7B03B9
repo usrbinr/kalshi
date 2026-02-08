@@ -1,0 +1,27 @@
+{
+    "id": "3E7B03B9",
+    "path": "~/R/kalshi/R/hello.R",
+    "project_path": "R/hello.R",
+    "type": "r_source",
+    "hash": "1293303299",
+    "contents": "",
+    "dirty": false,
+    "created": 1767136172714.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "462,35",
+        "scrollLine": "445",
+        "marks": "<:0,0\n>:0,0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1767228643,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1767228643445,
+    "read_only": false,
+    "read_only_alternatives": []
+}

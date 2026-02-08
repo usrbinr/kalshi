@@ -18,3 +18,4 @@
 ^vignettes/articles$
 ^llms\.txt$
 _freeze
+^\.woodpecker$

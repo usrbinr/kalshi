@@ -1,0 +1,33 @@
+# Woodpecker CI workflow for Codeberg Pages
+# Builds qrtdown documentation and deploys to pages branch
+
+when:
+  branch: main
+  event: [push, manual]
+
+steps:
+  build:
+    image: rocker/tidyverse:latest
+    commands:
+      - apt-get update && apt-get install -y curl gdebi-core
+      # Install Quarto
+      - curl -LO https://github.com/quarto-dev/quarto-cli/releases/download/v1.4.550/quarto-1.4.550-linux-amd64.deb
+      - gdebi -n quarto-1.4.550-linux-amd64.deb
+      # Install R packages
+      - R -e "install.packages('pak', repos = 'https://r-lib.github.io/p/pak/dev/')"
+      - R -e "pak::pak(c('qrtdown', '.'))"
+      # Build the site
+      - R -e "qrtdown::build_site()"
+
+  deploy:
+    image: bitnami/git:latest
+    commands:
+      - git config --global user.email "woodpecker@codeberg.org"
+      - git config --global user.name "Woodpecker CI"
+      - git checkout -b pages-deploy
+      - git add -f docs
+      - git commit -m "Deploy documentation [skip ci]"
+      - git subtree split --prefix docs -b pages-temp
+      - git push -f origin pages-temp:pages
+    when:
+      event: push

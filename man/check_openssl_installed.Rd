@@ -13,14 +13,22 @@ Returns `TRUE` invisibly if found; otherwise, throws an error.
 Verifies that the `openssl` command-line tool is installed and accessible
 via the system's PATH. Required for RSA-PSS signing.
 }
+\details{
+Uses `Sys.which("openssl")` to locate the binary on the system `PATH`. If the
+lookup returns an empty string the tool is considered missing and the function
+aborts with installation guidance for Ubuntu/Debian, macOS, and Windows.
+When the binary is found it emits a success message and returns invisibly.
+This is useful for diagnosing signing failures, since `sign_kalshi_request()`
+shells out to this same `openssl` binary.
+}
 \examples{
 \dontrun{
 check_openssl_installed()
 }
 }
 \seealso{
-Other authentication: 
-\code{\link{generate_kalshi_keypair}()},
-\code{\link{get_kalshi_access_token}()}
+Other authentication:
+\code{\link[=generate_kalshi_keypair]{generate_kalshi_keypair()}},
+\code{\link[=get_kalshi_access_token]{get_kalshi_access_token()}}
 }
 \concept{authentication}

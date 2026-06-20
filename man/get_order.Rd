@@ -19,6 +19,12 @@ A list with complete order details.
 \description{
 Retrieves details for a specific order by ID.
 }
+\details{
+Looks up a single order by sending an authenticated GET request to
+`/trade-api/v2/portfolio/orders/{order_id}`. This is a read-only operation
+that does not modify any orders, and it returns the order object extracted
+from the response.
+}
 \examples{
 \dontrun{
 order <- get_order("order-uuid")
@@ -26,13 +32,13 @@ order$status
 }
 }
 \seealso{
-Other trading: 
-\code{\link{amend_order}()},
-\code{\link{batch_cancel_orders}()},
-\code{\link{batch_create_orders}()},
-\code{\link{cancel_all_orders}()},
-\code{\link{cancel_order}()},
-\code{\link{create_order}()},
-\code{\link{decrease_order}()}
+Other trading:
+\code{\link[=amend_order]{amend_order()}},
+\code{\link[=batch_cancel_orders]{batch_cancel_orders()}},
+\code{\link[=batch_create_orders]{batch_create_orders()}},
+\code{\link[=cancel_all_orders]{cancel_all_orders()}},
+\code{\link[=cancel_order]{cancel_order()}},
+\code{\link[=create_order]{create_order()}},
+\code{\link[=decrease_order]{decrease_order()}}
 }
 \concept{trading}

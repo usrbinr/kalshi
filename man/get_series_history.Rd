@@ -27,6 +27,13 @@ A tibble with all settled markets for the series.
 Retrieves all historical results for a series, including all settled
 events and their market outcomes. Useful for backtesting and analysis.
 }
+\details{
+Delegates to [get_settled_markets()] for the given `series_ticker` with no
+date filter, so it pulls every settled market in the series (subject to
+`max_pages`). The result is the same flattened market-level tibble produced
+by [get_settled_markets()], one row per market with its settlement result and
+trading statistics.
+}
 \examples{
 \dontrun{
 # Get full history for NYC temperature series
@@ -34,12 +41,12 @@ history <- get_series_history("KXHIGHNY")
 }
 }
 \seealso{
-Other history: 
-\code{\link{get_event_candlesticks}()},
-\code{\link{get_event_results}()},
-\code{\link{get_market_history}()},
-\code{\link{get_settled_events}()},
-\code{\link{get_settled_markets}()},
-\code{\link{get_trade_history}()}
+Other history:
+\code{\link[=get_event_candlesticks]{get_event_candlesticks()}},
+\code{\link[=get_event_results]{get_event_results()}},
+\code{\link[=get_market_history]{get_market_history()}},
+\code{\link[=get_settled_events]{get_settled_events()}},
+\code{\link[=get_settled_markets]{get_settled_markets()}},
+\code{\link[=get_trade_history]{get_trade_history()}}
 }
 \concept{history}

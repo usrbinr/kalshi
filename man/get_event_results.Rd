@@ -33,6 +33,14 @@ A tibble with market results for the event.
 Retrieves all markets and their outcomes for a specific event.
 Accepts either a full event ticker or a series ticker with a date.
 }
+\details{
+When `event_ticker` is `NULL`, it is constructed from `series_ticker` and
+`date` using the Kalshi `SERIES-YYMMMDD` convention (e.g.
+`"KXHIGHNY-26FEB07"`); supplying neither a ticker nor a series/date pair
+raises an error. The function then fetches all markets for that event via
+[get_event_markets()], prepends an `event_ticker` column, and returns one
+row per market in the event.
+}
 \examples{
 \dontrun{
 # Using full event ticker
@@ -43,12 +51,12 @@ results <- get_event_results(series_ticker = "KXHIGHNY", date = "2026-02-07")
 }
 }
 \seealso{
-Other history: 
-\code{\link{get_event_candlesticks}()},
-\code{\link{get_market_history}()},
-\code{\link{get_series_history}()},
-\code{\link{get_settled_events}()},
-\code{\link{get_settled_markets}()},
-\code{\link{get_trade_history}()}
+Other history:
+\code{\link[=get_event_candlesticks]{get_event_candlesticks()}},
+\code{\link[=get_market_history]{get_market_history()}},
+\code{\link[=get_series_history]{get_series_history()}},
+\code{\link[=get_settled_events]{get_settled_events()}},
+\code{\link[=get_settled_markets]{get_settled_markets()}},
+\code{\link[=get_trade_history]{get_trade_history()}}
 }
 \concept{history}

@@ -29,6 +29,13 @@ A tibble with settled event information.
 \description{
 Retrieves settled events with optional filtering.
 }
+\details{
+A thin wrapper around [get_events()] that hard-codes `status = "settled"`,
+so it returns only events that have already resolved. The `series_ticker`,
+`limit`, `max_pages`, and authentication arguments are passed straight
+through, and pagination continues until all settled events are retrieved or
+`max_pages` is reached.
+}
 \examples{
 \dontrun{
 # Get all settled events for a series
@@ -36,12 +43,12 @@ events <- get_settled_events(series_ticker = "KXHIGHNY")
 }
 }
 \seealso{
-Other history: 
-\code{\link{get_event_candlesticks}()},
-\code{\link{get_event_results}()},
-\code{\link{get_market_history}()},
-\code{\link{get_series_history}()},
-\code{\link{get_settled_markets}()},
-\code{\link{get_trade_history}()}
+Other history:
+\code{\link[=get_event_candlesticks]{get_event_candlesticks()}},
+\code{\link[=get_event_results]{get_event_results()}},
+\code{\link[=get_market_history]{get_market_history()}},
+\code{\link[=get_series_history]{get_series_history()}},
+\code{\link[=get_settled_markets]{get_settled_markets()}},
+\code{\link[=get_trade_history]{get_trade_history()}}
 }
 \concept{history}

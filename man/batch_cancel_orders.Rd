@@ -23,19 +23,27 @@ A list with cancelled orders and any errors.
 \description{
 Cancels multiple orders in a single request. Limited to 20 orders per batch.
 }
+\details{
+Cancels multiple real, resting orders in one call by sending an authenticated
+DELETE request to `/trade-api/v2/portfolio/orders/batched` with the
+`order_ids` as the body. The batch is rejected locally if it contains more
+than 20 order ids. Individual cancellations may succeed or fail
+independently, so the returned list contains both the cancelled `orders` and
+any `errors`, with a warning emitted when any errors occur.
+}
 \examples{
 \dontrun{
 result <- batch_cancel_orders(c("order-1", "order-2", "order-3"))
 }
 }
 \seealso{
-Other trading: 
-\code{\link{amend_order}()},
-\code{\link{batch_create_orders}()},
-\code{\link{cancel_all_orders}()},
-\code{\link{cancel_order}()},
-\code{\link{create_order}()},
-\code{\link{decrease_order}()},
-\code{\link{get_order}()}
+Other trading:
+\code{\link[=amend_order]{amend_order()}},
+\code{\link[=batch_create_orders]{batch_create_orders()}},
+\code{\link[=cancel_all_orders]{cancel_all_orders()}},
+\code{\link[=cancel_order]{cancel_order()}},
+\code{\link[=create_order]{create_order()}},
+\code{\link[=decrease_order]{decrease_order()}},
+\code{\link[=get_order]{get_order()}}
 }
 \concept{trading}

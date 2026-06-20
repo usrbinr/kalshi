@@ -26,6 +26,12 @@ A list with the updated order details.
 \description{
 Decreases the remaining quantity of a resting order. Setting to 0 cancels the order.
 }
+\details{
+Reduces the size of a real, resting order by sending an authenticated POST
+request to `/trade-api/v2/portfolio/orders/{order_id}/decrease` with a body
+of `reduce_by`. This can only shrink an order, never grow it. On success the
+reduction is reported and the updated order object is returned.
+}
 \examples{
 \dontrun{
 # Reduce order by 5 contracts
@@ -33,13 +39,13 @@ decrease_order("order-uuid", reduce_by = 5)
 }
 }
 \seealso{
-Other trading: 
-\code{\link{amend_order}()},
-\code{\link{batch_cancel_orders}()},
-\code{\link{batch_create_orders}()},
-\code{\link{cancel_all_orders}()},
-\code{\link{cancel_order}()},
-\code{\link{create_order}()},
-\code{\link{get_order}()}
+Other trading:
+\code{\link[=amend_order]{amend_order()}},
+\code{\link[=batch_cancel_orders]{batch_cancel_orders()}},
+\code{\link[=batch_create_orders]{batch_create_orders()}},
+\code{\link[=cancel_all_orders]{cancel_all_orders()}},
+\code{\link[=cancel_order]{cancel_order()}},
+\code{\link[=create_order]{create_order()}},
+\code{\link[=get_order]{get_order()}}
 }
 \concept{trading}

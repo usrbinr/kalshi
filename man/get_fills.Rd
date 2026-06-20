@@ -32,16 +32,26 @@ A tibble with fill information.
 \description{
 Retrieves your trade fills (executed trades).
 }
+\details{
+Sends authenticated, paginated GET requests to the
+\code{/trade-api/v2/portfolio/fills} endpoint for the account associated with
+the supplied API key. Results can be filtered by \code{ticker} and
+\code{order_id}, with \code{max_pages} capping the number of pages fetched
+(\code{NULL} retrieves all). The response is flattened into a tibble with one
+row per fill, including the trade and order IDs, ticker, side, type, yes/no
+prices (in cents), count, a taker/maker flag, and creation time; an empty
+tibble is returned when there are no fills.
+}
 \examples{
 \dontrun{
 fills <- get_fills()
 }
 }
 \seealso{
-Other portfolio: 
-\code{\link{get_balance}()},
-\code{\link{get_orders}()},
-\code{\link{get_positions}()},
-\code{\link{get_settlements}()}
+Other portfolio:
+\code{\link[=get_balance]{get_balance()}},
+\code{\link[=get_orders]{get_orders()}},
+\code{\link[=get_positions]{get_positions()}},
+\code{\link[=get_settlements]{get_settlements()}}
 }
 \concept{portfolio}

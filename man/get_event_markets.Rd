@@ -23,14 +23,22 @@ A tibble with market information for the event.
 \description{
 Retrieves all markets associated with a specific event.
 }
+\details{
+Calls [get_event()] with `with_nested_markets = TRUE` and reshapes the embedded
+`$markets` list into a tibble, with one row per market. Each row carries the
+market ticker, title, subtitle, status, best yes bid/ask, last price, volume,
+and settlement result. When the event has no markets, a warning is emitted and
+an empty tibble is returned.
+}
 \examples{
 \dontrun{
 markets <- get_event_markets("KXHIGHNY-25FEB08")
 }
 }
 \seealso{
-Other events: 
-\code{\link{get_event}()},
-\code{\link{get_events}()}
+Other events:
+\code{\link[=build_event_tickers]{build_event_tickers()}},
+\code{\link[=get_event]{get_event()}},
+\code{\link[=get_events]{get_events()}}
 }
 \concept{events}

@@ -20,6 +20,14 @@ A list with created orders and any errors.
 \description{
 Creates multiple orders in a single request. Limited to 20 orders per batch.
 }
+\details{
+Places multiple real, authenticated orders in one call by sending a POST
+request to `/trade-api/v2/portfolio/orders/batched` with the `orders` list as
+the body. The batch is rejected locally if it contains more than 20 orders.
+Individual orders may succeed or fail independently, so the returned list
+contains both the created `orders` and any `errors`, with a warning emitted
+when any errors occur.
+}
 \examples{
 \dontrun{
 orders <- list(
@@ -36,13 +44,13 @@ result <- batch_create_orders(orders)
 }
 }
 \seealso{
-Other trading: 
-\code{\link{amend_order}()},
-\code{\link{batch_cancel_orders}()},
-\code{\link{cancel_all_orders}()},
-\code{\link{cancel_order}()},
-\code{\link{create_order}()},
-\code{\link{decrease_order}()},
-\code{\link{get_order}()}
+Other trading:
+\code{\link[=amend_order]{amend_order()}},
+\code{\link[=batch_cancel_orders]{batch_cancel_orders()}},
+\code{\link[=cancel_all_orders]{cancel_all_orders()}},
+\code{\link[=cancel_order]{cancel_order()}},
+\code{\link[=create_order]{create_order()}},
+\code{\link[=decrease_order]{decrease_order()}},
+\code{\link[=get_order]{get_order()}}
 }
 \concept{trading}

@@ -34,6 +34,18 @@ A tibble with OHLC data: time, open, high, low, close, volume.
 \description{
 Retrieves historical OHLC price data for a specific market.
 }
+\details{
+Queries the
+\code{/trade-api/v2/series/\{series_ticker\}/markets/\{ticker\}/candlesticks}
+endpoint with \code{period_interval} (1, 60, or 1440 minutes) plus
+\code{start_ts} and \code{end_ts} as Unix-second timestamps. The \code{start}
+and \code{end} arguments are parsed from dates, character strings, or Unix
+seconds; when omitted, \code{end} defaults to now and \code{start} to 30 days
+earlier. Errors from the request are caught and surfaced as a warning,
+yielding an empty tibble. Each candlestick is flattened into a row with a
+UTC time (from \code{end_period_ts}), OHLC values nested under \code{price},
+volume, open interest, and yes bid/ask open/close prices.
+}
 \examples{
 \dontrun{
 # Using dates (simple)
@@ -53,10 +65,10 @@ candles <- get_candlesticks(
 }
 }
 \seealso{
-Other markets: 
-\code{\link{get_market}()},
-\code{\link{get_markets}()},
-\code{\link{get_orderbook}()},
-\code{\link{get_trades}()}
+Other markets:
+\code{\link[=get_market]{get_market()}},
+\code{\link[=get_markets]{get_markets()}},
+\code{\link[=get_orderbook]{get_orderbook()}},
+\code{\link[=get_trades]{get_trades()}}
 }
 \concept{markets}

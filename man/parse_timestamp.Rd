@@ -15,4 +15,11 @@ Integer. Unix timestamp in seconds.
 \description{
 Converts various date inputs to Unix timestamp (seconds).
 }
+\details{
+A `NULL` input returns `NULL`. Numeric input is assumed to already be a Unix
+timestamp and is returned via `as.integer()` (truncated, not rounded).
+Character input is parsed with `as.Date()` first. The resulting `Date` or
+`POSIXt` value is converted with `as.POSIXct()` and coerced to an integer
+number of seconds; this conversion uses the session's local time zone.
+}
 \keyword{internal}

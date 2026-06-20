@@ -26,6 +26,13 @@ A list with complete event details, optionally including markets.
 \description{
 Retrieves detailed information for a specific event by ticker.
 }
+\details{
+Performs a single request to `/trade-api/v2/events/<event_ticker>` and returns
+the raw `event` object from the response without reshaping it into a tibble.
+Setting `with_nested_markets = TRUE` adds the `with_nested_markets=true` query
+parameter, causing the event's markets to be embedded under `$markets`;
+otherwise the parameter is omitted and no market data is returned.
+}
 \examples{
 \dontrun{
 event <- get_event("KXHIGHNY-25FEB08", with_nested_markets = TRUE)
@@ -34,8 +41,9 @@ event$markets
 }
 }
 \seealso{
-Other events: 
-\code{\link{get_event_markets}()},
-\code{\link{get_events}()}
+Other events:
+\code{\link[=build_event_tickers]{build_event_tickers()}},
+\code{\link[=get_event_markets]{get_event_markets()}},
+\code{\link[=get_events]{get_events()}}
 }
 \concept{events}

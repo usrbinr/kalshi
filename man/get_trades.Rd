@@ -32,6 +32,15 @@ A tibble with trade information.
 \description{
 Retrieves recent trades for all markets or a specific market.
 }
+\details{
+Queries the \code{/trade-api/v2/markets/trades} endpoint with \code{ticker},
+\code{limit}, and the \code{min_ts}/\code{max_ts} Unix-millisecond timestamp
+filters as query parameters. Results are gathered via cursor-based
+pagination, but \code{max_pages} defaults to 1 so only the first page is
+fetched unless raised. Each trade is shaped into one row of a tibble with
+ticker, trade_id, count, yes/no price, taker_side, and created_time; an empty
+tibble is returned when there are no matching trades.
+}
 \examples{
 \dontrun{
 # Get recent trades
@@ -42,10 +51,10 @@ trades <- get_trades(ticker = "KXHIGHNY-25FEB08-B54")
 }
 }
 \seealso{
-Other markets: 
-\code{\link{get_candlesticks}()},
-\code{\link{get_market}()},
-\code{\link{get_markets}()},
-\code{\link{get_orderbook}()}
+Other markets:
+\code{\link[=get_candlesticks]{get_candlesticks()}},
+\code{\link[=get_market]{get_market()}},
+\code{\link[=get_markets]{get_markets()}},
+\code{\link[=get_orderbook]{get_orderbook()}}
 }
 \concept{markets}

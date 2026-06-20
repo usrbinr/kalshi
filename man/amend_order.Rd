@@ -32,6 +32,14 @@ A list with the amended order details.
 \description{
 Amends an existing resting order's price and/or quantity.
 }
+\details{
+Modifies a real, resting order by sending an authenticated POST request to
+`/trade-api/v2/portfolio/orders/{order_id}/amend`. At least one of `count`,
+`yes_price`, or `no_price` must be supplied, and only the provided fields are
+included in the request body; `count` is interpreted as the new total
+contract count. On success the amendment is reported and the amended order
+object is returned.
+}
 \examples{
 \dontrun{
 # Change price to 50 cents
@@ -42,13 +50,13 @@ amend_order("order-uuid", count = 20)
 }
 }
 \seealso{
-Other trading: 
-\code{\link{batch_cancel_orders}()},
-\code{\link{batch_create_orders}()},
-\code{\link{cancel_all_orders}()},
-\code{\link{cancel_order}()},
-\code{\link{create_order}()},
-\code{\link{decrease_order}()},
-\code{\link{get_order}()}
+Other trading:
+\code{\link[=batch_cancel_orders]{batch_cancel_orders()}},
+\code{\link[=batch_create_orders]{batch_create_orders()}},
+\code{\link[=cancel_all_orders]{cancel_all_orders()}},
+\code{\link[=cancel_order]{cancel_order()}},
+\code{\link[=create_order]{create_order()}},
+\code{\link[=decrease_order]{decrease_order()}},
+\code{\link[=get_order]{get_order()}}
 }
 \concept{trading}

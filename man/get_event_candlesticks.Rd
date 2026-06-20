@@ -38,6 +38,16 @@ A tibble with OHLC data.
 \description{
 Retrieves aggregated historical OHLC data across all markets in an event.
 }
+\details{
+Calls the `/trade-api/v2/series/{series_ticker}/events/{event_ticker}/candlesticks`
+endpoint, building `event_ticker` from `series_ticker` and `date` when it is
+not supplied directly. The `start` and `end` arguments are parsed to
+Unix-second timestamps and sent as `start_ts` and `end_ts`; if omitted, the
+window defaults to the last 30 days ending now. `period_interval` selects the
+candle width in minutes (1, 60, or 1440). The returned tibble has one row per
+candle, with the period-end time as a UTC `POSIXct` plus open, high, low,
+close, and volume; request failures are caught and yield an empty tibble.
+}
 \examples{
 \dontrun{
 # Using series + date
@@ -55,12 +65,12 @@ candles <- get_event_candlesticks(
 }
 }
 \seealso{
-Other history: 
-\code{\link{get_event_results}()},
-\code{\link{get_market_history}()},
-\code{\link{get_series_history}()},
-\code{\link{get_settled_events}()},
-\code{\link{get_settled_markets}()},
-\code{\link{get_trade_history}()}
+Other history:
+\code{\link[=get_event_results]{get_event_results()}},
+\code{\link[=get_market_history]{get_market_history()}},
+\code{\link[=get_series_history]{get_series_history()}},
+\code{\link[=get_settled_events]{get_settled_events()}},
+\code{\link[=get_settled_markets]{get_settled_markets()}},
+\code{\link[=get_trade_history]{get_trade_history()}}
 }
 \concept{history}

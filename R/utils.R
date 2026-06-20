@@ -11,6 +11,14 @@
 #' Constructs a Kalshi event ticker from a series ticker and date.
 #' Format: SERIES-YYMMMDD (e.g., KXHIGHNY-26FEB07)
 #'
+#' @details
+#' Character and POSIXt inputs are first coerced to `Date` via `as.Date()`;
+#' a `Date` is used as-is. The date is then formatted as `%y%b%d` and
+#' upper-cased to produce the two-digit year, three-letter month abbreviation,
+#' and two-digit day, which is appended to the series ticker after a hyphen.
+#' Month names follow the current locale, so a non-English locale may yield an
+#' invalid ticker.
+#'
 #' @param series_ticker Character. The series ticker.
 #' @param date Date, character, or POSIXt. The event date.
 #'
@@ -35,6 +43,13 @@ build_event_ticker <- function(series_ticker, date) {
 #' @description
 #' Converts various date inputs to Unix timestamp (seconds).
 #'
+#' @details
+#' A `NULL` input returns `NULL`. Numeric input is assumed to already be a Unix
+#' timestamp and is returned via `as.integer()` (truncated, not rounded).
+#' Character input is parsed with `as.Date()` first. The resulting `Date` or
+#' `POSIXt` value is converted with `as.POSIXct()` and coerced to an integer
+#' number of seconds; this conversion uses the session's local time zone.
+#'
 #' @param x Date, character, POSIXt, or numeric (already Unix timestamp).
 #'
 #' @return Integer. Unix timestamp in seconds.
@@ -58,6 +73,14 @@ parse_timestamp <- function(x) {
 #'
 #' @description
 #' Internal helper to construct an authenticated httr2 request.
+#'
+#' @details
+#' Builds the base URL via `kalshi_base_url(demo = demo)` and sets the path and
+#' HTTP method. Any `NULL`-valued query parameters are dropped before being
+#' added, and a JSON body is attached only when `body` is supplied. The request
+#' is then signed through `req_kalshi_auth()` and configured to retry up to
+#' three times via `httr2::req_retry()`. The returned request is not yet
+#' performed.
 #'
 #' @param path Character. The API endpoint path (e.g., "/trade-api/v2/markets").
 #' @param method Character. HTTP method. Defaults to "GET".
@@ -101,6 +124,12 @@ kalshi_request <- function(path,
 #' @description
 #' Internal helper to execute a request and parse the JSON response.
 #'
+#' @details
+#' Calls `httr2::req_perform()` on the request and returns the parsed body via
+#' `httr2::resp_body_json()`. Retry behaviour is inherited from the request
+#' object (configured in `kalshi_request()`); HTTP error statuses raise an
+#' `httr2` error rather than being returned.
+#'
 #' @param req An httr2 request object.
 #'
 #' @return Parsed JSON response as a list.
@@ -114,6 +143,14 @@ kalshi_perform <- function(req) {
 #'
 #' @description
 #' Internal helper to handle cursor-based pagination.
+#'
+#' @details
+#' Repeatedly builds and performs requests via `kalshi_request()` and
+#' `kalshi_perform()`, appending the elements under `result_key` from each
+#' response into a single flat list. The `cursor` from each response is passed
+#' as a query parameter to the next request. Pagination stops when the cursor
+#' is `NULL` or an empty string, or once `max_pages` pages have been fetched
+#' (when `max_pages` is non-`NULL`).
 #'
 #' @param path Character. The API endpoint path.
 #' @param result_key Character. The key in the response containing results.

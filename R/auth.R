@@ -10,6 +10,14 @@
 #' This path is stored in an internal environment and used automatically
 #' for all subsequent API requests.
 #'
+#' @details
+#' The function first checks that a file exists at `path`, aborting with an
+#' error if it does not. On success, it normalizes the path with
+#' `normalizePath()` and stores it in the package's internal environment under
+#' `key_path`, so that later authenticated calls can locate the private RSA key
+#' without re-specifying it. Only the path is recorded; the key file itself is
+#' not read or validated until a request is signed.
+#'
 #' @param path Character. The absolute or relative path to your `.key` or `.pem` file.
 #'
 #' @return Invisibly returns the normalized path.
@@ -35,6 +43,14 @@ kalshi_auth_setup <- function(path) {
 #' @description
 #' Internal check to ensure the user has run `kalshi_auth_setup()`
 #' before attempting an authenticated API call.
+#'
+#' @details
+#' Reads the `key_path` value previously stored in the package's internal
+#' environment by `kalshi_auth_setup()`. It performs two validations: it aborts
+#' if no path has been registered (i.e. `key_path` is `NULL`), and it aborts if
+#' a path was registered but the file no longer exists on disk. When both checks
+#' pass it returns the stored path, which callers such as
+#' `sign_kalshi_request()` use to locate the private key.
 #'
 #' @return Returns the key path if found; otherwise, throws an error.
 #' @keywords internal
@@ -108,6 +124,14 @@ generate_kalshi_keypair <- function(private_key_path = "kalshi-key.key") {
 #' @description
 #' Verifies that the `openssl` command-line tool is installed and accessible
 #' via the system's PATH. Required for RSA-PSS signing.
+#'
+#' @details
+#' Uses `Sys.which("openssl")` to locate the binary on the system `PATH`. If the
+#' lookup returns an empty string the tool is considered missing and the function
+#' aborts with installation guidance for Ubuntu/Debian, macOS, and Windows.
+#' When the binary is found it emits a success message and returns invisibly.
+#' This is useful for diagnosing signing failures, since `sign_kalshi_request()`
+#' shells out to this same `openssl` binary.
 #'
 #' @return Returns `TRUE` invisibly if found; otherwise, throws an error.
 #'
@@ -295,6 +319,13 @@ req_kalshi_auth <- function(req, kalshi_access_token = "KALSHI_API") {
 #'
 #' @description
 #' Returns the appropriate base URL for API requests.
+#'
+#' @details
+#' Selects between the two URLs stored in the package's internal environment.
+#' When `demo` is `TRUE` it returns the demo endpoint
+#' (`https://demo-api.elections.kalshi.com`); otherwise it returns the
+#' production endpoint (`https://api.elections.kalshi.com`). These values are
+#' fixed at package load time and are not configurable at runtime.
 #'
 #' @param demo Logical. If `TRUE`, returns the demo environment URL.
 #'   If `FALSE` (default), returns the production URL.

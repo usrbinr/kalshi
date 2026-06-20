@@ -19,6 +19,12 @@ A list with exchange status information:
 \description{
 Retrieves the current operational status of the Kalshi exchange.
 }
+\details{
+Performs a single GET request to the \code{/trade-api/v2/exchange/status}
+endpoint and returns the parsed response list unmodified. No authentication
+is required and no pagination is involved. This is useful for confirming the
+exchange and trading engine are up before placing orders.
+}
 \examples{
 \dontrun{
 status <- get_exchange_status()

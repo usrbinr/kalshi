@@ -16,4 +16,11 @@ Character string with the base URL.
 \description{
 Returns the appropriate base URL for API requests.
 }
+\details{
+Selects between the two URLs stored in the package's internal environment.
+When `demo` is `TRUE` it returns the demo endpoint
+(`https://demo-api.elections.kalshi.com`); otherwise it returns the
+production endpoint (`https://api.elections.kalshi.com`). These values are
+fixed at package load time and are not configurable at runtime.
+}
 \keyword{internal}

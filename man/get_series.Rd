@@ -26,6 +26,12 @@ A list with complete series details.
 \description{
 Retrieves detailed information for a specific series by ticker.
 }
+\details{
+Performs a single request to `/trade-api/v2/series/<series_ticker>` and returns
+the raw `series` object from the response without reshaping it into a tibble.
+Setting `include_volume = TRUE` adds the `include_volume=true` query parameter
+so volume data is included in the response; otherwise the parameter is omitted.
+}
 \examples{
 \dontrun{
 series <- get_series("KXHIGHNY")
@@ -34,7 +40,7 @@ series$frequency
 }
 }
 \seealso{
-Other series: 
-\code{\link{get_series_list}()}
+Other series:
+\code{\link[=get_series_list]{get_series_list()}}
 }
 \concept{series}

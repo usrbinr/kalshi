@@ -41,6 +41,15 @@ A tibble with settled market information including results.
 Retrieves settled markets with optional date filtering. Useful for
 analyzing historical outcomes.
 }
+\details{
+Queries the `/trade-api/v2/markets` endpoint with `status = "settled"` and
+paginates through all matching pages (or up to `max_pages`). The `from` and
+`to` arguments are converted to Unix-second timestamps and sent as the
+`min_settled_ts` and `max_settled_ts` filters, so the date range applies to
+each market's settlement time. The returned tibble flattens each market into
+one row with its ticker identifiers, title, settlement `result`, volume,
+open interest, and the close, expiration, and settlement times.
+}
 \examples{
 \dontrun{
 # Get all settled markets for a series
@@ -58,12 +67,12 @@ results <- get_settled_markets(from = Sys.Date() - 7)
 }
 }
 \seealso{
-Other history: 
-\code{\link{get_event_candlesticks}()},
-\code{\link{get_event_results}()},
-\code{\link{get_market_history}()},
-\code{\link{get_series_history}()},
-\code{\link{get_settled_events}()},
-\code{\link{get_trade_history}()}
+Other history:
+\code{\link[=get_event_candlesticks]{get_event_candlesticks()}},
+\code{\link[=get_event_results]{get_event_results()}},
+\code{\link[=get_market_history]{get_market_history()}},
+\code{\link[=get_series_history]{get_series_history()}},
+\code{\link[=get_settled_events]{get_settled_events()}},
+\code{\link[=get_trade_history]{get_trade_history()}}
 }
 \concept{history}

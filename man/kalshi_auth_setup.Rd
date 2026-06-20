@@ -17,6 +17,14 @@ Configures the session by pointing the package to your private RSA key.
 This path is stored in an internal environment and used automatically
 for all subsequent API requests.
 }
+\details{
+The function first checks that a file exists at `path`, aborting with an
+error if it does not. On success, it normalizes the path with
+`normalizePath()` and stores it in the package's internal environment under
+`key_path`, so that later authenticated calls can locate the private RSA key
+without re-specifying it. Only the path is recorded; the key file itself is
+not read or validated until a request is signed.
+}
 \examples{
 \dontrun{
 kalshi_auth_setup("path/to/your/kalshi-key.key")

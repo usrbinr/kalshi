@@ -3,6 +3,7 @@
 export(amend_order)
 export(batch_cancel_orders)
 export(batch_create_orders)
+export(build_event_tickers)
 export(cancel_all_orders)
 export(cancel_order)
 export(check_openssl_installed)

@@ -32,16 +32,26 @@ A tibble with settlement information.
 \description{
 Retrieves your settlement history.
 }
+\details{
+Sends authenticated, paginated GET requests to the
+\code{/trade-api/v2/portfolio/settlements} endpoint for the account
+associated with the supplied API key. Results can be filtered by
+\code{ticker} and \code{event_ticker}, with \code{max_pages} capping the
+number of pages fetched (\code{NULL} retrieves all). The response is
+flattened into a tibble with one row per settled market, including the market
+and event tickers, market result, position, revenue (in cents), and settled
+time; an empty tibble is returned when there is no settlement history.
+}
 \examples{
 \dontrun{
 settlements <- get_settlements()
 }
 }
 \seealso{
-Other portfolio: 
-\code{\link{get_balance}()},
-\code{\link{get_fills}()},
-\code{\link{get_orders}()},
-\code{\link{get_positions}()}
+Other portfolio:
+\code{\link[=get_balance]{get_balance()}},
+\code{\link[=get_fills]{get_fills()}},
+\code{\link[=get_orders]{get_orders()}},
+\code{\link[=get_positions]{get_positions()}}
 }
 \concept{portfolio}

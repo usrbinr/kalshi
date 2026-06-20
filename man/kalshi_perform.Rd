@@ -15,4 +15,10 @@ Parsed JSON response as a list.
 \description{
 Internal helper to execute a request and parse the JSON response.
 }
+\details{
+Calls `httr2::req_perform()` on the request and returns the parsed body via
+`httr2::resp_body_json()`. Retry behaviour is inherited from the request
+object (configured in `kalshi_request()`); HTTP error statuses raise an
+`httr2` error rather than being returned.
+}
 \keyword{internal}

@@ -32,4 +32,12 @@ An httr2 request object ready to perform.
 \description{
 Internal helper to construct an authenticated httr2 request.
 }
+\details{
+Builds the base URL via `kalshi_base_url(demo = demo)` and sets the path and
+HTTP method. Any `NULL`-valued query parameters are dropped before being
+added, and a JSON body is attached only when `body` is supplied. The request
+is then signed through `req_kalshi_auth()` and configured to retry up to
+three times via `httr2::req_retry()`. The returned request is not yet
+performed.
+}
 \keyword{internal}

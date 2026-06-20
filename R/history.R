@@ -6,6 +6,15 @@
 #' Retrieves settled markets with optional date filtering. Useful for
 #' analyzing historical outcomes.
 #'
+#' @details
+#' Queries the `/trade-api/v2/markets` endpoint with `status = "settled"` and
+#' paginates through all matching pages (or up to `max_pages`). The `from` and
+#' `to` arguments are converted to Unix-second timestamps and sent as the
+#' `min_settled_ts` and `max_settled_ts` filters, so the date range applies to
+#' each market's settlement time. The returned tibble flattens each market into
+#' one row with its ticker identifiers, title, settlement `result`, volume,
+#' open interest, and the close, expiration, and settlement times.
+#'
 #' @param series_ticker Character. Filter by series ticker.
 #' @param event_ticker Character. Filter by event ticker.
 #' @param from Date, character, or integer. Start of date range.
@@ -97,6 +106,13 @@ get_settled_markets <- function(series_ticker = NULL,
 #' @description
 #' Retrieves settled events with optional filtering.
 #'
+#' @details
+#' A thin wrapper around [get_events()] that hard-codes `status = "settled"`,
+#' so it returns only events that have already resolved. The `series_ticker`,
+#' `limit`, `max_pages`, and authentication arguments are passed straight
+#' through, and pagination continues until all settled events are retrieved or
+#' `max_pages` is reached.
+#'
 #' @param series_ticker Character. Filter by series ticker.
 #' @param limit Integer. Results per page (1-200). Defaults to 100.
 #' @param max_pages Integer. Maximum pages to fetch. NULL for all.
@@ -135,6 +151,13 @@ get_settled_events <- function(series_ticker = NULL,
 #' Retrieves all historical results for a series, including all settled
 #' events and their market outcomes. Useful for backtesting and analysis.
 #'
+#' @details
+#' Delegates to [get_settled_markets()] for the given `series_ticker` with no
+#' date filter, so it pulls every settled market in the series (subject to
+#' `max_pages`). The result is the same flattened market-level tibble produced
+#' by [get_settled_markets()], one row per market with its settlement result and
+#' trading statistics.
+#'
 #' @param series_ticker Character. The series ticker (e.g., "KXHIGHNY").
 #' @param max_pages Integer. Maximum pages to fetch. NULL for all.
 #' @param kalshi_access_token Character. Environment variable name for API key.
@@ -170,6 +193,14 @@ get_series_history <- function(series_ticker,
 #' @description
 #' Retrieves all markets and their outcomes for a specific event.
 #' Accepts either a full event ticker or a series ticker with a date.
+#'
+#' @details
+#' When `event_ticker` is `NULL`, it is constructed from `series_ticker` and
+#' `date` using the Kalshi `SERIES-YYMMMDD` convention (e.g.
+#' `"KXHIGHNY-26FEB07"`); supplying neither a ticker nor a series/date pair
+#' raises an error. The function then fetches all markets for that event via
+#' [get_event_markets()], prepends an `event_ticker` column, and returns one
+#' row per market in the event.
 #'
 #' @param event_ticker Character. The event ticker (e.g., "KXHIGHNY-26FEB07").
 #'   If NULL, series_ticker and date must be provided.
@@ -230,6 +261,16 @@ get_event_results <- function(event_ticker = NULL,
 #'
 #' @description
 #' Retrieves aggregated historical OHLC data across all markets in an event.
+#'
+#' @details
+#' Calls the `/trade-api/v2/series/{series_ticker}/events/{event_ticker}/candlesticks`
+#' endpoint, building `event_ticker` from `series_ticker` and `date` when it is
+#' not supplied directly. The `start` and `end` arguments are parsed to
+#' Unix-second timestamps and sent as `start_ts` and `end_ts`; if omitted, the
+#' window defaults to the last 30 days ending now. `period_interval` selects the
+#' candle width in minutes (1, 60, or 1440). The returned tibble has one row per
+#' candle, with the period-end time as a UTC `POSIXct` plus open, high, low,
+#' close, and volume; request failures are caught and yield an empty tibble.
 #'
 #' @param event_ticker Character. The event ticker. If NULL, use series_ticker + date.
 #' @param series_ticker Character. The series ticker.
@@ -338,6 +379,15 @@ get_event_candlesticks <- function(event_ticker = NULL,
 #' Retrieves historical trade and price data for a specific market.
 #' Combines candlestick data with trade information.
 #'
+#' @details
+#' Returns a named list that may contain a `candles` tibble and a `trades`
+#' tibble. Candlesticks are fetched via [get_candlesticks()] only when
+#' `include_candles` is `TRUE` and a `series_ticker` is supplied (it is required
+#' by the candlesticks endpoint); failures are caught and produce an empty
+#' tibble. Trades are fetched via [get_trades()] when `include_trades` is `TRUE`,
+#' with `max_pages = NULL` so all available trade pages for the market are
+#' pulled.
+#'
 #' @param ticker Character. The market ticker.
 #' @param series_ticker Character. The series ticker (required for candlesticks).
 #' @param include_candles Logical. Include candlestick data. Defaults to TRUE.
@@ -400,6 +450,14 @@ get_market_history <- function(ticker,
 #'
 #' @description
 #' Retrieves all historical trades for a market or across all markets.
+#'
+#' @details
+#' A wrapper around [get_trades()] that hits the `/trade-api/v2/markets/trades`
+#' endpoint. When `ticker` is `NULL`, trades are returned across all markets;
+#' otherwise results are filtered to that market. The `min_ts` and `max_ts`
+#' bounds are passed through as-is to restrict the time window, and pagination
+#' continues up to `max_pages` (default 10). The returned tibble has one row per
+#' trade, including count, yes/no prices, taker side, and creation time.
 #'
 #' @param ticker Character. Filter by market ticker. Optional.
 #' @param min_ts Integer. Minimum timestamp (Unix ms).

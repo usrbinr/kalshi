@@ -5,6 +5,12 @@
 #' @description
 #' Retrieves the current operational status of the Kalshi exchange.
 #'
+#' @details
+#' Performs a single GET request to the \code{/trade-api/v2/exchange/status}
+#' endpoint and returns the parsed response list unmodified. No authentication
+#' is required and no pagination is involved. This is useful for confirming the
+#' exchange and trading engine are up before placing orders.
+#'
 #' @param demo Logical. Use demo environment if TRUE. Defaults to FALSE.
 #'
 #' @return A list with exchange status information:
@@ -31,6 +37,16 @@ get_exchange_status <- function(demo = FALSE) {
 #' @description
 #' Retrieves a list of markets with optional filtering. Handles pagination
 #' automatically to return all matching results.
+#'
+#' @details
+#' Queries the \code{/trade-api/v2/markets} endpoint, passing \code{status},
+#' \code{series_ticker}, \code{event_ticker}, \code{tickers} (collapsed into a
+#' comma-separated string), and \code{limit} as query parameters. Results are
+#' fetched page by page via cursor-based pagination until exhausted or
+#' \code{max_pages} is reached, and each market is flattened into one row of a
+#' tibble containing identifiers, status, bid/ask and last prices, volumes,
+#' open interest, result, and close/expiration times. An empty tibble is
+#' returned (with a warning) when no markets match.
 #'
 #' @param status Character. Filter by status: "unopened", "open", "closed", "settled".
 #' @param series_ticker Character. Filter by series ticker.
@@ -120,6 +136,12 @@ get_markets <- function(status = NULL,
 #' @description
 #' Retrieves detailed information for a specific market by ticker.
 #'
+#' @details
+#' Performs a single GET request to \code{/trade-api/v2/markets/\{ticker\}} and
+#' returns the \code{market} element of the response. Unlike
+#' \code{\link{get_markets}}, the result is the raw parsed list rather than a
+#' tibble, and no pagination occurs.
+#'
 #' @param ticker Character. The market ticker (e.g., "KXHIGHNY-25FEB08-B54").
 #' @param kalshi_access_token Character. Environment variable name for API key.
 #' @param demo Logical. Use demo environment if TRUE.
@@ -152,6 +174,13 @@ get_market <- function(ticker,
 #'
 #' @description
 #' Retrieves the current order book for a specific market showing bid depths.
+#'
+#' @details
+#' Performs a single GET request to
+#' \code{/trade-api/v2/markets/\{ticker\}/orderbook}, passing \code{depth} as a
+#' query parameter to limit the number of price levels returned, and returns the
+#' \code{orderbook} element of the response. The result is a list whose
+#' \code{yes} and \code{no} elements hold the resting bid levels for each side.
 #'
 #' @param ticker Character. The market ticker.
 #' @param depth Integer. Order book depth (0 or negative for all levels, 1-100 for specific depth).
@@ -188,6 +217,15 @@ get_orderbook <- function(ticker,
 #'
 #' @description
 #' Retrieves recent trades for all markets or a specific market.
+#'
+#' @details
+#' Queries the \code{/trade-api/v2/markets/trades} endpoint with \code{ticker},
+#' \code{limit}, and the \code{min_ts}/\code{max_ts} Unix-millisecond timestamp
+#' filters as query parameters. Results are gathered via cursor-based
+#' pagination, but \code{max_pages} defaults to 1 so only the first page is
+#' fetched unless raised. Each trade is shaped into one row of a tibble with
+#' ticker, trade_id, count, yes/no price, taker_side, and created_time; an empty
+#' tibble is returned when there are no matching trades.
 #'
 #' @param ticker Character. Optional market ticker to filter trades.
 #' @param limit Integer. Number of trades to return (1-1000). Defaults to 100.
@@ -253,6 +291,18 @@ get_trades <- function(ticker = NULL,
 #'
 #' @description
 #' Retrieves historical OHLC price data for a specific market.
+#'
+#' @details
+#' Queries the
+#' \code{/trade-api/v2/series/\{series_ticker\}/markets/\{ticker\}/candlesticks}
+#' endpoint with \code{period_interval} (1, 60, or 1440 minutes) plus
+#' \code{start_ts} and \code{end_ts} as Unix-second timestamps. The \code{start}
+#' and \code{end} arguments are parsed from dates, character strings, or Unix
+#' seconds; when omitted, \code{end} defaults to now and \code{start} to 30 days
+#' earlier. Errors from the request are caught and surfaced as a warning,
+#' yielding an empty tibble. Each candlestick is flattened into a row with a
+#' UTC time (from \code{end_period_ts}), OHLC values nested under \code{price},
+#' volume, open interest, and yes bid/ask open/close prices.
 #'
 #' @param ticker Character. The market ticker.
 #' @param series_ticker Character. The series ticker for this market.
@@ -329,16 +379,20 @@ get_candlesticks <- function(ticker,
     purrr::map(data$candlesticks, function(c) {
         # Price data is nested under $price
         price <- c$price %||% list()
+        yes_bid <- c$yes_bid %||% list()
+        yes_ask <- c$yes_ask %||% list()
         tibble::tibble(
             time = as.POSIXct(c$end_period_ts, origin = "1970-01-01", tz = "UTC"),
-            open = price$open %||% NA_integer_,
-            high = price$high %||% NA_integer_,
-            low = price$low %||% NA_integer_,
-            close = price$close %||% NA_integer_,
-            volume = c$volume %||% NA_integer_,
-            open_interest = c$open_interest %||% NA_integer_,
-            yes_bid_close = c$yes_bid$close %||% NA_integer_,
-            yes_ask_close = c$yes_ask$close %||% NA_integer_
+            open = as.numeric(price$open %||% NA),
+            high = as.numeric(price$high %||% NA),
+            low = as.numeric(price$low %||% NA),
+            close = as.numeric(price$close %||% NA),
+            volume = as.numeric(c$volume %||% NA),
+            open_interest = as.numeric(c$open_interest %||% NA),
+            yes_bid_open = as.numeric(yes_bid$open %||% NA),
+            yes_bid_close = as.numeric(yes_bid$close %||% NA),
+            yes_ask_open = as.numeric(yes_ask$open %||% NA),
+            yes_ask_close = as.numeric(yes_ask$close %||% NA)
         )
     }) |>
         purrr::list_rbind()

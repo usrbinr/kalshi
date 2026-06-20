@@ -6,6 +6,15 @@
 #' Creates a new order in a market. Orders can be limit or market orders,
 #' for either yes or no contracts.
 #'
+#' @details
+#' Places a real, authenticated order by sending a POST request to
+#' `/trade-api/v2/portfolio/orders`. The order body is assembled from `ticker`,
+#' `side`, `action`, `count`, and `type`, with `yes_price`/`no_price`,
+#' `expiration_ts`, `sell_position_floor`, and `buy_max_cost` added only when
+#' supplied. Limit orders require either `yes_price` or `no_price`, and `side`,
+#' `action`, and `type` are validated before the request is sent. On success the
+#' new order's id is reported and the order object is returned.
+#'
 #' @param ticker Character. The market ticker.
 #' @param side Character. Order side: "yes" or "no".
 #' @param action Character. Order action: "buy" or "sell".
@@ -106,6 +115,12 @@ create_order <- function(ticker,
 #' @description
 #' Cancels an existing resting order by order ID.
 #'
+#' @details
+#' Cancels a real, resting order by sending an authenticated DELETE request to
+#' `/trade-api/v2/portfolio/orders/{order_id}`. The order id is interpolated
+#' directly into the request path. On success the cancellation is reported and
+#' the cancelled order object is returned.
+#'
 #' @param order_id Character. The order ID to cancel.
 #' @param kalshi_access_token Character. Environment variable name for API key.
 #' @param demo Logical. Use demo environment if TRUE.
@@ -142,6 +157,14 @@ cancel_order <- function(order_id,
 #'
 #' @description
 #' Amends an existing resting order's price and/or quantity.
+#'
+#' @details
+#' Modifies a real, resting order by sending an authenticated POST request to
+#' `/trade-api/v2/portfolio/orders/{order_id}/amend`. At least one of `count`,
+#' `yes_price`, or `no_price` must be supplied, and only the provided fields are
+#' included in the request body; `count` is interpreted as the new total
+#' contract count. On success the amendment is reported and the amended order
+#' object is returned.
 #'
 #' @param order_id Character. The order ID to amend.
 #' @param count Integer. New total contract count. Optional.
@@ -200,6 +223,12 @@ amend_order <- function(order_id,
 #' @description
 #' Decreases the remaining quantity of a resting order. Setting to 0 cancels the order.
 #'
+#' @details
+#' Reduces the size of a real, resting order by sending an authenticated POST
+#' request to `/trade-api/v2/portfolio/orders/{order_id}/decrease` with a body
+#' of `reduce_by`. This can only shrink an order, never grow it. On success the
+#' reduction is reported and the updated order object is returned.
+#'
 #' @param order_id Character. The order ID to decrease.
 #' @param reduce_by Integer. Number of contracts to reduce by.
 #' @param kalshi_access_token Character. Environment variable name for API key.
@@ -243,6 +272,12 @@ decrease_order <- function(order_id,
 #' @description
 #' Retrieves details for a specific order by ID.
 #'
+#' @details
+#' Looks up a single order by sending an authenticated GET request to
+#' `/trade-api/v2/portfolio/orders/{order_id}`. This is a read-only operation
+#' that does not modify any orders, and it returns the order object extracted
+#' from the response.
+#'
 #' @param order_id Character. The order ID.
 #' @param kalshi_access_token Character. Environment variable name for API key.
 #' @param demo Logical. Use demo environment if TRUE.
@@ -277,6 +312,14 @@ get_order <- function(order_id,
 #'
 #' @description
 #' Creates multiple orders in a single request. Limited to 20 orders per batch.
+#'
+#' @details
+#' Places multiple real, authenticated orders in one call by sending a POST
+#' request to `/trade-api/v2/portfolio/orders/batched` with the `orders` list as
+#' the body. The batch is rejected locally if it contains more than 20 orders.
+#' Individual orders may succeed or fail independently, so the returned list
+#' contains both the created `orders` and any `errors`, with a warning emitted
+#' when any errors occur.
 #'
 #' @param orders List of order specifications. Each order should be a list with:
 #'   ticker, side, action, count, type, and optionally yes_price/no_price.
@@ -339,6 +382,14 @@ batch_create_orders <- function(orders,
 #' @description
 #' Cancels multiple orders in a single request. Limited to 20 orders per batch.
 #'
+#' @details
+#' Cancels multiple real, resting orders in one call by sending an authenticated
+#' DELETE request to `/trade-api/v2/portfolio/orders/batched` with the
+#' `order_ids` as the body. The batch is rejected locally if it contains more
+#' than 20 order ids. Individual cancellations may succeed or fail
+#' independently, so the returned list contains both the cancelled `orders` and
+#' any `errors`, with a warning emitted when any errors occur.
+#'
 #' @param order_ids Character vector. Order IDs to cancel.
 #' @param kalshi_access_token Character. Environment variable name for API key.
 #' @param demo Logical. Use demo environment if TRUE.
@@ -388,6 +439,14 @@ batch_cancel_orders <- function(order_ids,
 #'
 #' @description
 #' Cancels all resting orders, optionally filtered by market or event.
+#'
+#' @details
+#' A convenience wrapper that first calls [get_orders()] to retrieve all resting
+#' orders (optionally filtered by `ticker` or `event_ticker`), then cancels them
+#' in groups of 20 via repeated [batch_cancel_orders()] calls. All operations
+#' are authenticated and act on real orders. If there are no resting orders it
+#' reports this and returns an empty tibble; otherwise it returns the tibble of
+#' orders that were targeted for cancellation.
 #'
 #' @param ticker Character. Cancel only orders for this market ticker. Optional.
 #' @param event_ticker Character. Cancel only orders for this event. Optional.

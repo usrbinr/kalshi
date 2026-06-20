@@ -6,6 +6,14 @@
 #' Retrieves your current account balance and portfolio value.
 #' Values are returned in cents.
 #'
+#' @details
+#' Sends an authenticated GET request to the
+#' \code{/trade-api/v2/portfolio/balance} endpoint, returning the balance for
+#' the account associated with the supplied API key. Unlike the other portfolio
+#' functions, this endpoint is not paginated and returns a single list rather
+#' than a tibble. All monetary values are expressed in cents (divide by 100 for
+#' US dollars).
+#'
 #' @param kalshi_access_token Character. Environment variable name for API key.
 #' @param demo Logical. Use demo environment if TRUE.
 #'
@@ -39,6 +47,16 @@ get_balance <- function(kalshi_access_token = "KALSHI_API",
 #'
 #' @description
 #' Retrieves your current positions across all markets.
+#'
+#' @details
+#' Sends authenticated, paginated GET requests to the
+#' \code{/trade-api/v2/portfolio/positions} endpoint for the account associated
+#' with the supplied API key. Results can be narrowed with the \code{ticker} and
+#' \code{event_ticker} filters, and \code{max_pages} caps how many pages are
+#' fetched (\code{NULL} retrieves all). The response is flattened into a tibble
+#' with one row per position holding the market and event tickers, position
+#' size, market exposure, realized P&L, total traded, and resting order count;
+#' an empty tibble is returned when there are no positions.
 #'
 #' @param ticker Character. Filter by specific market ticker.
 #' @param event_ticker Character. Filter by event ticker.
@@ -101,6 +119,17 @@ get_positions <- function(ticker = NULL,
 #'
 #' @description
 #' Retrieves your orders with optional filtering.
+#'
+#' @details
+#' Sends authenticated, paginated GET requests to the
+#' \code{/trade-api/v2/portfolio/orders} endpoint for the account associated
+#' with the supplied API key. Results can be filtered by \code{ticker},
+#' \code{event_ticker}, and \code{status} (e.g. "resting", "canceled",
+#' "executed"), with \code{max_pages} capping the number of pages fetched
+#' (\code{NULL} retrieves all). The response is flattened into a tibble with one
+#' row per order, including the order ID, tickers, type, side, status, yes/no
+#' prices (in cents), order and remaining counts, and creation/expiration times;
+#' an empty tibble is returned when no orders match.
 #'
 #' @param ticker Character. Filter by specific market ticker.
 #' @param event_ticker Character. Filter by event ticker.
@@ -175,6 +204,16 @@ get_orders <- function(ticker = NULL,
 #' @description
 #' Retrieves your trade fills (executed trades).
 #'
+#' @details
+#' Sends authenticated, paginated GET requests to the
+#' \code{/trade-api/v2/portfolio/fills} endpoint for the account associated with
+#' the supplied API key. Results can be filtered by \code{ticker} and
+#' \code{order_id}, with \code{max_pages} capping the number of pages fetched
+#' (\code{NULL} retrieves all). The response is flattened into a tibble with one
+#' row per fill, including the trade and order IDs, ticker, side, type, yes/no
+#' prices (in cents), count, a taker/maker flag, and creation time; an empty
+#' tibble is returned when there are no fills.
+#'
 #' @param ticker Character. Filter by specific market ticker.
 #' @param order_id Character. Filter by specific order ID.
 #' @param limit Integer. Results per page (1-1000). Defaults to 100.
@@ -238,6 +277,16 @@ get_fills <- function(ticker = NULL,
 #'
 #' @description
 #' Retrieves your settlement history.
+#'
+#' @details
+#' Sends authenticated, paginated GET requests to the
+#' \code{/trade-api/v2/portfolio/settlements} endpoint for the account
+#' associated with the supplied API key. Results can be filtered by
+#' \code{ticker} and \code{event_ticker}, with \code{max_pages} capping the
+#' number of pages fetched (\code{NULL} retrieves all). The response is
+#' flattened into a tibble with one row per settled market, including the market
+#' and event tickers, market result, position, revenue (in cents), and settled
+#' time; an empty tibble is returned when there is no settlement history.
 #'
 #' @param ticker Character. Filter by specific market ticker.
 #' @param event_ticker Character. Filter by event ticker.

@@ -51,6 +51,15 @@ A list with order details including order_id.
 Creates a new order in a market. Orders can be limit or market orders,
 for either yes or no contracts.
 }
+\details{
+Places a real, authenticated order by sending a POST request to
+`/trade-api/v2/portfolio/orders`. The order body is assembled from `ticker`,
+`side`, `action`, `count`, and `type`, with `yes_price`/`no_price`,
+`expiration_ts`, `sell_position_floor`, and `buy_max_cost` added only when
+supplied. Limit orders require either `yes_price` or `no_price`, and `side`,
+`action`, and `type` are validated before the request is sent. On success the
+new order's id is reported and the order object is returned.
+}
 \examples{
 \dontrun{
 # Buy 10 yes contracts at 45 cents
@@ -73,13 +82,13 @@ order <- create_order(
 }
 }
 \seealso{
-Other trading: 
-\code{\link{amend_order}()},
-\code{\link{batch_cancel_orders}()},
-\code{\link{batch_create_orders}()},
-\code{\link{cancel_all_orders}()},
-\code{\link{cancel_order}()},
-\code{\link{decrease_order}()},
-\code{\link{get_order}()}
+Other trading:
+\code{\link[=amend_order]{amend_order()}},
+\code{\link[=batch_cancel_orders]{batch_cancel_orders()}},
+\code{\link[=batch_create_orders]{batch_create_orders()}},
+\code{\link[=cancel_all_orders]{cancel_all_orders()}},
+\code{\link[=cancel_order]{cancel_order()}},
+\code{\link[=decrease_order]{decrease_order()}},
+\code{\link[=get_order]{get_order()}}
 }
 \concept{trading}

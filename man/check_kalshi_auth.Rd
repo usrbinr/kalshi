@@ -13,4 +13,12 @@ Returns the key path if found; otherwise, throws an error.
 Internal check to ensure the user has run `kalshi_auth_setup()`
 before attempting an authenticated API call.
 }
+\details{
+Reads the `key_path` value previously stored in the package's internal
+environment by `kalshi_auth_setup()`. It performs two validations: it aborts
+if no path has been registered (i.e. `key_path` is `NULL`), and it aborts if
+a path was registered but the file no longer exists on disk. When both checks
+pass it returns the stored path, which callers such as
+`sign_kalshi_request()` use to locate the private key.
+}
 \keyword{internal}

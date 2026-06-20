@@ -18,4 +18,12 @@ Character. The constructed event ticker.
 Constructs a Kalshi event ticker from a series ticker and date.
 Format: SERIES-YYMMMDD (e.g., KXHIGHNY-26FEB07)
 }
+\details{
+Character and POSIXt inputs are first coerced to `Date` via `as.Date()`;
+a `Date` is used as-is. The date is then formatted as `%y%b%d` and
+upper-cased to produce the two-digit year, three-letter month abbreviation,
+and two-digit day, which is appended to the series ticker after a hyphen.
+Month names follow the current locale, so a non-English locale may yield an
+invalid ticker.
+}
 \keyword{internal}

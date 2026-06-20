@@ -36,6 +36,16 @@ A tibble with event information.
 Retrieves a list of events with optional filtering. An event is a specific
 occurrence within a series (e.g., "NYC High Temperature on Feb 8, 2025").
 }
+\details{
+Pages through the `/trade-api/v2/events` endpoint via [kalshi_paginate()],
+passing `status`, `series_ticker`, and `limit` (1-200, default 100) as query
+parameters, and adding `with_nested_markets=true` only when requested. Each
+event is flattened into a row containing its event ticker, series ticker, title,
+subtitle, category, status, `mutually_exclusive` flag, and strike date; the
+nested market data itself is not unpacked into the tibble. Use `max_pages` to
+limit how many pages are fetched, and expect an empty tibble plus a warning when
+no events match.
+}
 \examples{
 \dontrun{
 # Get all open events
@@ -46,8 +56,9 @@ events <- get_events(series_ticker = "KXHIGHNY")
 }
 }
 \seealso{
-Other events: 
-\code{\link{get_event}()},
-\code{\link{get_event_markets}()}
+Other events:
+\code{\link[=build_event_tickers]{build_event_tickers()}},
+\code{\link[=get_event]{get_event()}},
+\code{\link[=get_event_markets]{get_event_markets()}}
 }
 \concept{events}

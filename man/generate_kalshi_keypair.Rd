@@ -31,8 +31,8 @@ generate_kalshi_keypair("my_kalshi_key.key")
 }
 }
 \seealso{
-Other authentication: 
-\code{\link{check_openssl_installed}()},
-\code{\link{get_kalshi_access_token}()}
+Other authentication:
+\code{\link[=check_openssl_installed]{check_openssl_installed()}},
+\code{\link[=get_kalshi_access_token]{get_kalshi_access_token()}}
 }
 \concept{authentication}

@@ -32,6 +32,14 @@ A tibble with trade information.
 \description{
 Retrieves all historical trades for a market or across all markets.
 }
+\details{
+A wrapper around [get_trades()] that hits the `/trade-api/v2/markets/trades`
+endpoint. When `ticker` is `NULL`, trades are returned across all markets;
+otherwise results are filtered to that market. The `min_ts` and `max_ts`
+bounds are passed through as-is to restrict the time window, and pagination
+continues up to `max_pages` (default 10). The returned tibble has one row per
+trade, including count, yes/no prices, taker side, and creation time.
+}
 \examples{
 \dontrun{
 # Get all trades for a market
@@ -42,12 +50,12 @@ trades <- get_trade_history(max_pages = 5)
 }
 }
 \seealso{
-Other history: 
-\code{\link{get_event_candlesticks}()},
-\code{\link{get_event_results}()},
-\code{\link{get_market_history}()},
-\code{\link{get_series_history}()},
-\code{\link{get_settled_events}()},
-\code{\link{get_settled_markets}()}
+Other history:
+\code{\link[=get_event_candlesticks]{get_event_candlesticks()}},
+\code{\link[=get_event_results]{get_event_results()}},
+\code{\link[=get_market_history]{get_market_history()}},
+\code{\link[=get_series_history]{get_series_history()}},
+\code{\link[=get_settled_events]{get_settled_events()}},
+\code{\link[=get_settled_markets]{get_settled_markets()}}
 }
 \concept{history}

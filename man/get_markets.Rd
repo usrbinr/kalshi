@@ -40,6 +40,16 @@ A tibble with market information including ticker, title, status,
 Retrieves a list of markets with optional filtering. Handles pagination
 automatically to return all matching results.
 }
+\details{
+Queries the \code{/trade-api/v2/markets} endpoint, passing \code{status},
+\code{series_ticker}, \code{event_ticker}, \code{tickers} (collapsed into a
+comma-separated string), and \code{limit} as query parameters. Results are
+fetched page by page via cursor-based pagination until exhausted or
+\code{max_pages} is reached, and each market is flattened into one row of a
+tibble containing identifiers, status, bid/ask and last prices, volumes,
+open interest, result, and close/expiration times. An empty tibble is
+returned (with a warning) when no markets match.
+}
 \examples{
 \dontrun{
 # Get all open markets
@@ -50,10 +60,10 @@ markets <- get_markets(series_ticker = "KXHIGHNY")
 }
 }
 \seealso{
-Other markets: 
-\code{\link{get_candlesticks}()},
-\code{\link{get_market}()},
-\code{\link{get_orderbook}()},
-\code{\link{get_trades}()}
+Other markets:
+\code{\link[=get_candlesticks]{get_candlesticks()}},
+\code{\link[=get_market]{get_market()}},
+\code{\link[=get_orderbook]{get_orderbook()}},
+\code{\link[=get_trades]{get_trades()}}
 }
 \concept{markets}

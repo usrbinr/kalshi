@@ -32,4 +32,12 @@ A list of all results across pages.
 \description{
 Internal helper to handle cursor-based pagination.
 }
+\details{
+Repeatedly builds and performs requests via `kalshi_request()` and
+`kalshi_perform()`, appending the elements under `result_key` from each
+response into a single flat list. The `cursor` from each response is passed
+as a query parameter to the next request. Pagination stops when the cursor
+is `NULL` or an empty string, or once `max_pages` pages have been fetched
+(when `max_pages` is non-`NULL`).
+}
 \keyword{internal}

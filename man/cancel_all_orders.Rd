@@ -26,6 +26,14 @@ A tibble with cancelled orders.
 \description{
 Cancels all resting orders, optionally filtered by market or event.
 }
+\details{
+A convenience wrapper that first calls [get_orders()] to retrieve all resting
+orders (optionally filtered by `ticker` or `event_ticker`), then cancels them
+in groups of 20 via repeated [batch_cancel_orders()] calls. All operations
+are authenticated and act on real orders. If there are no resting orders it
+reports this and returns an empty tibble; otherwise it returns the tibble of
+orders that were targeted for cancellation.
+}
 \examples{
 \dontrun{
 # Cancel all resting orders
@@ -36,13 +44,13 @@ cancel_all_orders(ticker = "KXHIGHNY-25FEB08-B54")
 }
 }
 \seealso{
-Other trading: 
-\code{\link{amend_order}()},
-\code{\link{batch_cancel_orders}()},
-\code{\link{batch_create_orders}()},
-\code{\link{cancel_order}()},
-\code{\link{create_order}()},
-\code{\link{decrease_order}()},
-\code{\link{get_order}()}
+Other trading:
+\code{\link[=amend_order]{amend_order()}},
+\code{\link[=batch_cancel_orders]{batch_cancel_orders()}},
+\code{\link[=batch_create_orders]{batch_create_orders()}},
+\code{\link[=cancel_order]{cancel_order()}},
+\code{\link[=create_order]{create_order()}},
+\code{\link[=decrease_order]{decrease_order()}},
+\code{\link[=get_order]{get_order()}}
 }
 \concept{trading}

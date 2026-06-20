@@ -19,6 +19,12 @@ A list with complete market details.
 \description{
 Retrieves detailed information for a specific market by ticker.
 }
+\details{
+Performs a single GET request to \code{/trade-api/v2/markets/\{ticker\}} and
+returns the \code{market} element of the response. Unlike
+\code{\link{get_markets}}, the result is the raw parsed list rather than a
+tibble, and no pagination occurs.
+}
 \examples{
 \dontrun{
 market <- get_market("KXHIGHNY-25FEB08-B54")
@@ -26,10 +32,10 @@ market$title
 }
 }
 \seealso{
-Other markets: 
-\code{\link{get_candlesticks}()},
-\code{\link{get_markets}()},
-\code{\link{get_orderbook}()},
-\code{\link{get_trades}()}
+Other markets:
+\code{\link[=get_candlesticks]{get_candlesticks()}},
+\code{\link[=get_markets]{get_markets()}},
+\code{\link[=get_orderbook]{get_orderbook()}},
+\code{\link[=get_trades]{get_trades()}}
 }
 \concept{markets}

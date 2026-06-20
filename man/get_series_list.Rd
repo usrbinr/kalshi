@@ -28,6 +28,14 @@ A tibble with series information including ticker, title, category,
 Retrieves all available series templates. A series represents a recurring
 event format (e.g., "Daily High Temperature in NYC").
 }
+\details{
+Pages through the `/trade-api/v2/series` endpoint via [kalshi_paginate()],
+optionally narrowing results with the `category` query parameter and capping
+the number of pages with `max_pages`. Each returned series record is flattened
+into one row holding its ticker, title, category, frequency, fee type, contract
+URL, and the name of its first settlement source (`NA` when none is present).
+When no series match, a warning is emitted and an empty tibble is returned.
+}
 \examples{
 \dontrun{
 series <- get_series_list()
@@ -35,7 +43,7 @@ head(series)
 }
 }
 \seealso{
-Other series: 
-\code{\link{get_series}()}
+Other series:
+\code{\link[=get_series]{get_series()}}
 }
 \concept{series}

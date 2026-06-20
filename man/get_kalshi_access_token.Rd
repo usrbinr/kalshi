@@ -33,8 +33,8 @@ key_id <- get_kalshi_access_token("MY_PROD_KEY")
 }
 }
 \seealso{
-Other authentication: 
-\code{\link{check_openssl_installed}()},
-\code{\link{generate_kalshi_keypair}()}
+Other authentication:
+\code{\link[=check_openssl_installed]{check_openssl_installed()}},
+\code{\link[=generate_kalshi_keypair]{generate_kalshi_keypair()}}
 }
 \concept{authentication}

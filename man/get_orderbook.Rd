@@ -26,6 +26,13 @@ A list with yes and no order book levels.
 \description{
 Retrieves the current order book for a specific market showing bid depths.
 }
+\details{
+Performs a single GET request to
+\code{/trade-api/v2/markets/\{ticker\}/orderbook}, passing \code{depth} as a
+query parameter to limit the number of price levels returned, and returns the
+\code{orderbook} element of the response. The result is a list whose
+\code{yes} and \code{no} elements hold the resting bid levels for each side.
+}
 \examples{
 \dontrun{
 book <- get_orderbook("KXHIGHNY-25FEB08-B54")
@@ -33,10 +40,10 @@ book$yes
 }
 }
 \seealso{
-Other markets: 
-\code{\link{get_candlesticks}()},
-\code{\link{get_market}()},
-\code{\link{get_markets}()},
-\code{\link{get_trades}()}
+Other markets:
+\code{\link[=get_candlesticks]{get_candlesticks()}},
+\code{\link[=get_market]{get_market()}},
+\code{\link[=get_markets]{get_markets()}},
+\code{\link[=get_trades]{get_trades()}}
 }
 \concept{markets}

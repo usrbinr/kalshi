@@ -22,6 +22,14 @@ A list with balance information:
 Retrieves your current account balance and portfolio value.
 Values are returned in cents.
 }
+\details{
+Sends an authenticated GET request to the
+\code{/trade-api/v2/portfolio/balance} endpoint, returning the balance for
+the account associated with the supplied API key. Unlike the other portfolio
+functions, this endpoint is not paginated and returns a single list rather
+than a tibble. All monetary values are expressed in cents (divide by 100 for
+US dollars).
+}
 \examples{
 \dontrun{
 bal <- get_balance()
@@ -29,10 +37,10 @@ cat("Balance: $", bal$balance / 100, "\n")
 }
 }
 \seealso{
-Other portfolio: 
-\code{\link{get_fills}()},
-\code{\link{get_orders}()},
-\code{\link{get_positions}()},
-\code{\link{get_settlements}()}
+Other portfolio:
+\code{\link[=get_fills]{get_fills()}},
+\code{\link[=get_orders]{get_orders()}},
+\code{\link[=get_positions]{get_positions()}},
+\code{\link[=get_settlements]{get_settlements()}}
 }
 \concept{portfolio}

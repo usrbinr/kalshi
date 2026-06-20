@@ -33,16 +33,26 @@ A tibble with position information including market ticker,
 \description{
 Retrieves your current positions across all markets.
 }
+\details{
+Sends authenticated, paginated GET requests to the
+\code{/trade-api/v2/portfolio/positions} endpoint for the account associated
+with the supplied API key. Results can be narrowed with the \code{ticker} and
+\code{event_ticker} filters, and \code{max_pages} caps how many pages are
+fetched (\code{NULL} retrieves all). The response is flattened into a tibble
+with one row per position holding the market and event tickers, position
+size, market exposure, realized P&L, total traded, and resting order count;
+an empty tibble is returned when there are no positions.
+}
 \examples{
 \dontrun{
 positions <- get_positions()
 }
 }
 \seealso{
-Other portfolio: 
-\code{\link{get_balance}()},
-\code{\link{get_fills}()},
-\code{\link{get_orders}()},
-\code{\link{get_settlements}()}
+Other portfolio:
+\code{\link[=get_balance]{get_balance()}},
+\code{\link[=get_fills]{get_fills()}},
+\code{\link[=get_orders]{get_orders()}},
+\code{\link[=get_settlements]{get_settlements()}}
 }
 \concept{portfolio}

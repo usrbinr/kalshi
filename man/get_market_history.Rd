@@ -36,6 +36,15 @@ A list with candles and trades tibbles.
 Retrieves historical trade and price data for a specific market.
 Combines candlestick data with trade information.
 }
+\details{
+Returns a named list that may contain a `candles` tibble and a `trades`
+tibble. Candlesticks are fetched via [get_candlesticks()] only when
+`include_candles` is `TRUE` and a `series_ticker` is supplied (it is required
+by the candlesticks endpoint); failures are caught and produce an empty
+tibble. Trades are fetched via [get_trades()] when `include_trades` is `TRUE`,
+with `max_pages = NULL` so all available trade pages for the market are
+pulled.
+}
 \examples{
 \dontrun{
 history <- get_market_history(
@@ -47,12 +56,12 @@ history$trades
 }
 }
 \seealso{
-Other history: 
-\code{\link{get_event_candlesticks}()},
-\code{\link{get_event_results}()},
-\code{\link{get_series_history}()},
-\code{\link{get_settled_events}()},
-\code{\link{get_settled_markets}()},
-\code{\link{get_trade_history}()}
+Other history:
+\code{\link[=get_event_candlesticks]{get_event_candlesticks()}},
+\code{\link[=get_event_results]{get_event_results()}},
+\code{\link[=get_series_history]{get_series_history()}},
+\code{\link[=get_settled_events]{get_settled_events()}},
+\code{\link[=get_settled_markets]{get_settled_markets()}},
+\code{\link[=get_trade_history]{get_trade_history()}}
 }
 \concept{history}

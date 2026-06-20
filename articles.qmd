@@ -9,3 +9,4 @@ In-depth guides and tutorials for using the package.
 
 - [Authenticating with the Kalshi API](vignettes/articles/authentication.qmd)
 - [Getting Started with kalshi](vignettes/articles/getting-started.qmd)
+- [Finding Markets: Series, Events, and Tickers](vignettes/articles/finding-markets.qmd)

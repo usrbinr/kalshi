@@ -1,0 +1,164 @@
+---
+title: "Finding Markets: Series, Events, and Tickers"
+---
+
+```{r}
+#| include: false
+#| eval: false
+```
+
+Kalshi organizes everything into a three-level hierarchy. Understanding it is the
+key to going from a topic you care about (say, the daily high temperature in
+Miami) down to the exact contract you can price and trade.
+
+## The ticker hierarchy
+
+```
+KXHIGHMIA                    series   — a recurring market template
+KXHIGHMIA-26JUN17            event    — one occurrence (a single day)
+KXHIGHMIA-26JUN17-B93.5      market   — one outcome bucket within that event
+```
+
+| Level | What it is | Example | Function |
+|-------|------------|---------|----------|
+| **Series** | A recurring market format | `KXHIGHMIA` (Miami daily high temp) | `get_series_list()`, `get_series()` |
+| **Event** | A single occurrence, usually one day | `KXHIGHMIA-26JUN17` | `get_events()` |
+| **Market** | One outcome bucket you can buy/sell | `KXHIGHMIA-26JUN17-B93.5` | `get_event_markets()`, `get_markets()` |
+
+The event ticker is `SERIES-YYMMMDD` and the market ticker is
+`EVENT-<bucket>`, where the bucket suffix is either:
+
+- `B93.5` — a **range** bucket, e.g. "93° to 94°"
+- `T89`   — a **threshold** bucket, e.g. "88° or below" or "97° or above"
+
+## Step 1 — find the series
+
+Series tickers for daily high temperatures follow `KXHIGH<city>` (e.g.
+`KXHIGHMIA` Miami, `KXHIGHLAX` Los Angeles, `KXHIGHTDC` Washington DC); lows use
+`KXLOWT<city>`. Browse them with `get_series_list()`:
+
+```{r}
+#| eval: false
+library(kalshi)
+library(dplyr)
+
+kalshi_auth_setup("kalshi-key.key")
+
+weather <- get_series_list(category = "Climate and Weather")
+
+weather |>
+  filter(grepl("Miami", title, ignore.case = TRUE)) |>
+  select(ticker, title, frequency)
+```
+
+## Step 2 — find each event (one per day)
+
+Given a series ticker, list its events. Each event is a day, named
+`KXHIGHMIA-26JUN17`:
+
+```{r}
+#| eval: false
+# all events for the series
+events <- get_events(series_ticker = "KXHIGHMIA")
+
+# only days that have already resolved
+events <- get_events(series_ticker = "KXHIGHMIA", status = "settled")
+
+events$event_ticker
+#> "KXHIGHMIA-26JUN17" "KXHIGHMIA-26JUN16" ...
+```
+
+If you already know the date, build the event ticker directly — no API call
+needed:
+
+```{r}
+#| eval: false
+build_event_tickers("KXHIGHMIA", "2026-06-17")
+#> 2026-06-17
+#> "KXHIGHMIA-26JUN17"
+
+# a whole range, named by date, ready for purrr::map()
+build_event_tickers("KXHIGHMIA", "2026-06-14", "2026-06-17")
+```
+
+## Step 3 — find the markets (buckets) within a day
+
+`get_event_markets()` returns one row per temperature bucket, including the
+human-readable range and, once settled, the winner (`result == "yes"`):
+
+```{r}
+#| eval: false
+mk <- get_event_markets("KXHIGHMIA-26JUN17")
+
+mk |> select(ticker, subtitle, result, last_price)
+#> ticker                    subtitle      result  last_price
+#> KXHIGHMIA-26JUN17-T89     88° or below  no      0.01
+#> KXHIGHMIA-26JUN17-B93.5   93° to 94°    yes     0.99
+#> ...
+```
+
+You can also pull every bucket across every day in a single call, which is handy
+for backfilling history:
+
+```{r}
+#| eval: false
+get_markets(series_ticker = "KXHIGHMIA")                     # all buckets, all days
+get_markets(series_ticker = "KXHIGHMIA", status = "settled") # settled only
+get_markets(event_ticker  = "KXHIGHMIA-26JUN17")             # one day's buckets
+```
+
+## Parsing the bucket range
+
+The `subtitle` ("93° to 94°") holds the range. Split it into numeric edges,
+remembering the threshold buckets only have one number:
+
+```{r}
+#| eval: false
+library(stringr)
+
+mk |>
+  mutate(
+    nums     = str_extract_all(subtitle, "\\d+"),
+    low_deg  = as.integer(purrr::map_chr(nums, \(x) x[1])),
+    high_deg = as.integer(purrr::map_chr(nums, \(x) x[length(x)]))
+  ) |>
+  select(-nums)
+```
+
+## Putting it together — odds over time
+
+Once you have a market ticker, `get_candlesticks()` gives its price history. The
+`close` column is the last-traded price; `yes_bid_close` / `yes_ask_close` are
+the bid/ask. Prices are in dollars (0.53 = 53¢ = a 53% implied probability).
+
+Candlestick times are **UTC**. To query a specific local time, build the window
+in the city's timezone and let R handle daylight saving:
+
+```{r}
+#| eval: false
+# 9:00 AM Houston time on 2026-06-17 (Central) -> correct UTC automatically
+start <- as.integer(as.POSIXct("2026-06-17 09:00:00", tz = "America/Chicago"))
+end   <- as.integer(as.POSIXct("2026-06-17 09:59:00", tz = "America/Chicago"))
+
+get_candlesticks("KXHIGHMIA-26JUN17-B93.5", "KXHIGHMIA",
+                 period_interval = 60, start = start, end = end) |>
+  select(time, bid = yes_bid_close, ask = yes_ask_close, last = close)
+```
+
+## The full loop
+
+A common analysis — for each day, the buckets, the morning odds, and the winner
+— is just these pieces composed with `purrr`:
+
+```{r}
+#| eval: false
+library(purrr)
+
+build_event_tickers("KXHIGHMIA", "2026-06-14", "2026-06-17") |>
+  imap(\(event_ticker, date)
+    get_event_markets(event_ticker) |> mutate(date = date)) |>
+  list_rbind()
+```
+
+From there, join in `get_candlesticks()` for morning odds and filter
+`result == "yes"` for the winning bucket each day.

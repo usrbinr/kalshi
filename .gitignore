@@ -16,3 +16,9 @@ CLAUDE.md
 _quarto.yml
 /.quarto/
 **/*.quarto_ipynb
+/_qrtdown-styles.css
+/_qrtdown/
+/index.qmd
+/reference/
+/articles/
+/citation.qmd
